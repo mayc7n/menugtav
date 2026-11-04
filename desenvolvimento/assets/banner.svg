@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">Mike Menu</title><desc id="desc">Menu para GTA V no modo história.</desc>
+  <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#101a21"/><stop offset="1" stop-color="#193f4c"/></linearGradient><linearGradient id="accent"><stop stop-color="#82c8d5"/><stop offset="1" stop-color="#f5d39c"/></linearGradient></defs>
+  <rect width="1200" height="320" fill="url(#bg)"/><path d="M0 284h1200v36H0z" fill="#0b1116" opacity=".6"/><path d="M784 0h416v284H674z" fill="#70adba" opacity=".05"/>
+  <path d="M68 67h6v181h-6z" fill="url(#accent)"/><text x="104" y="93" fill="#a9c6cc" font-family="Arial,sans-serif" font-size="17" letter-spacing="5">GTA V LEGACY · MODO HISTÓRIA</text>
+  <text x="100" y="186" fill="#f4f5ee" font-family="Arial,sans-serif" font-size="88" font-weight="800" letter-spacing="-3">MIKE</text><text x="342" y="186" fill="#91cbd2" font-family="Arial,sans-serif" font-size="88" font-weight="300" letter-spacing="-3">MENU</text>
+  <text x="105" y="228" fill="#c1d0d1" font-family="Arial,sans-serif" font-size="22">Seu jogo. Seu caminho.</text>
+  <g transform="translate(854 72)"><rect width="243" height="169" rx="4" fill="#0a1419" stroke="#477c89"/><rect width="243" height="37" fill="#367f8c"/><text x="15" y="25" fill="#fff" font-family="Arial,sans-serif" font-size="16" font-weight="bold">MIKE</text><rect x="10" y="49" width="223" height="24" fill="#e7edeb"/><text x="20" y="66" fill="#17262a" font-family="Arial,sans-serif" font-size="13">JOGADOR</text><text x="20" y="98" fill="#cbd8d9" font-family="Arial,sans-serif" font-size="13">VEÍCULOS</text><text x="20" y="127" fill="#cbd8d9" font-family="Arial,sans-serif" font-size="13">TELETRANSPORTE</text><text x="20" y="154" fill="#cbd8d9" font-family="Arial,sans-serif" font-size="13">ARMAS</text></g>
+</svg>

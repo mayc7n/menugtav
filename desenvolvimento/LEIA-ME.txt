@@ -1,0 +1,38 @@
+MIKE MENU — INSTALAÇÃO RÁPIDA
+
+Olá! Vamos colocar o menu no seu GTA V Legacy.
+
+ANTES DE COMEÇAR
+
+O menu funciona no Windows e foi feito para o modo história. A edição Enhanced ainda não foi testada. Antes de usar qualquer mod, faça uma cópia do seu save.
+
+Você precisa ter o Script Hook V e o ScriptHookVDotNet instalados. Se você já usa mods de script no GTA, talvez já tenha os dois. Caso ainda não tenha, baixe-os nos sites oficiais e siga as instruções de instalação:
+
+Script Hook V: https://www.dev-c.com/gtav/scripthookv/
+ScriptHookVDotNet: https://github.com/scripthookvdotnet/scripthookvdotnet/wiki/Getting-Started
+
+COMO INSTALAR
+
+1. Feche o GTA V.
+2. Abra a pasta do seu GTA V: é aquela onde fica o arquivo GTA5.exe.
+3. Copie a pasta scripts que veio neste ZIP e cole na pasta do GTA.
+   Se você já tiver uma pasta scripts, abra as duas pastas e copie o arquivo MikeMenu.3.dll para dentro da pasta scripts do jogo.
+4. Abra o jogo, entre no modo história e aperte F9. Pronto!
+
+COMO USAR
+
+Setas para cima e para baixo: navegar.
+Enter: escolher uma opção.
+Backspace: voltar.
+F9: abrir ou fechar o menu.
+F10: definir o dinheiro. F11: adicionar dinheiro.
+
+NÃO ABRIU?
+
+Confira se o jogo é GTA V Legacy, se os dois pré-requisitos estão instalados e se o arquivo MikeMenu.3.dll está na pasta scripts do jogo. Depois, feche e abra o jogo de novo. Para detalhes, veja o arquivo ScriptHookVDotNet.log na pasta do GTA.
+
+Já usava uma versão antiga do Mike Menu? Remova MenuHistoria.3.dll ou DinheiroHistoria.3.cs da pasta scripts antes de instalar a nova, para não abrir dois menus iguais.
+
+Para desinstalar, feche o jogo e apague somente o arquivo MikeMenu.3.dll da pasta scripts.
+
+O menu é exclusivo para o modo história. Remova os mods antes de entrar no GTA Online.

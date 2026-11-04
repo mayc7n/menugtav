@@ -1,0 +1,14 @@
+# Arquivos locais e intermediários
+*.log
+*.pdb
+*.user
+*.suo
+.env
+.vs/
+bin/
+obj/
+.build/
+# Arquivos locais do jogo e dependências externas
+ScriptHookVDotNet/
+ScriptHookV.dll
+*.asi
