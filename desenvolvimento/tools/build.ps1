@@ -6,7 +6,11 @@ param(
 $ErrorActionPreference = 'Stop'
 $raizProjeto = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $codigoFonte = Join-Path $raizProjeto 'desenvolvimento\src\MikeMenu.3.cs'
+$previaFonte = Join-Path $raizProjeto 'desenvolvimento\src\PreviaMikeMenu.cs'
+$favoritosFonte = Join-Path $raizProjeto 'desenvolvimento\src\FavoritosMikeMenu.cs'
+$companheirosFonte = Join-Path $raizProjeto 'desenvolvimento\src\CompanheirosMikeMenu.cs'
 $testes = Join-Path $raizProjeto 'desenvolvimento\tests\TestesRegras.cs'
+$testesFavoritos = Join-Path $raizProjeto 'desenvolvimento\tests\TestesFavoritos.cs'
 $referencia = (Resolve-Path -LiteralPath $ScriptHookVDotNet3).Path
 $compilador = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 if (-not (Test-Path -LiteralPath $compilador -PathType Leaf)) { throw 'Compilador .NET Framework não encontrado.' }
@@ -16,11 +20,16 @@ New-Item -ItemType Directory -Force $pastaCompilacao, $pastaDistribuicao | Out-N
 $executavelTeste = Join-Path $pastaCompilacao 'TestesRegras.exe'
 $binario = Join-Path $pastaDistribuicao 'MikeMenu.3.dll'
 $pacote = Join-Path $raizProjeto 'MikeMenu.zip'
-& $compilador /nologo /define:TEST "/out:$executavelTeste" $codigoFonte $testes
+& $compilador /nologo /define:TEST "/out:$executavelTeste" $codigoFonte $previaFonte $testes
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes.' }
 & $executavelTeste
 if ($LASTEXITCODE -ne 0) { throw 'Os testes falharam.' }
-& $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte
+$executavelFavoritos = Join-Path $pastaCompilacao 'TestesFavoritos.exe'
+& $compilador /nologo /define:TEST "/out:$executavelFavoritos" $favoritosFonte $testesFavoritos
+if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de favoritos.' }
+& $executavelFavoritos
+if ($LASTEXITCODE -ne 0) { throw 'Os testes de favoritos falharam.' }
+& $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte $previaFonte $favoritosFonte $companheirosFonte
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o menu.' }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -29,6 +38,9 @@ if (Test-Path -LiteralPath $arquivoTemporario) { Remove-Item -LiteralPath $arqui
 $arquivoZip = [System.IO.Compression.ZipFile]::Open($arquivoTemporario, [System.IO.Compression.ZipArchiveMode]::Create)
 try {
     [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($arquivoZip, $binario, 'scripts/MikeMenu.3.dll')
+    Get-ChildItem -LiteralPath (Join-Path $pastaDistribuicao 'MikeMenuAssets') -File | ForEach-Object {
+        [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($arquivoZip, $_.FullName, ('scripts/MikeMenuAssets/' + $_.Name))
+    }
     [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($arquivoZip, (Join-Path $raizProjeto 'desenvolvimento\LEIA-ME.txt'), 'LEIA-ME.txt')
 } finally { $arquivoZip.Dispose() }
 Copy-Item -LiteralPath $arquivoTemporario -Destination $pacote -Force

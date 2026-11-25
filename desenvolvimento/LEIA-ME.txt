@@ -16,7 +16,7 @@ COMO INSTALAR
 1. Feche o GTA V.
 2. Abra a pasta do seu GTA V: é aquela onde fica o arquivo GTA5.exe.
 3. Copie a pasta scripts que veio neste ZIP e cole na pasta do GTA.
-   Se você já tiver uma pasta scripts, abra as duas pastas e copie o arquivo MikeMenu.3.dll para dentro da pasta scripts do jogo.
+   Se você já tiver uma pasta scripts, copie o arquivo MikeMenu.3.dll e a pasta MikeMenuAssets para dentro da pasta scripts do jogo.
 4. Abra o jogo, entre no modo história e aperte Del. Pronto!
 
 COMO USAR
@@ -27,9 +27,13 @@ Backspace: voltar.
 Del: abrir ou fechar o menu.
 F10: definir o dinheiro. F11: adicionar dinheiro.
 
-Em Roupas, escolha uma peça e percorra modelos e texturas. A alteração aparece no personagem; use Restaurar peça anterior antes de sair daquela peça para desfazê-la. Voltar ou fechar o menu mantém a escolha atual. Miniaturas aparecem para algumas armas e veículos quando os recursos do jogo estão disponíveis.
+Em Roupas, escolha uma peça e percorra modelos e texturas. A alteração aparece no personagem; use Restaurar peça anterior antes de sair daquela peça para desfazê-la. Voltar ou fechar o menu mantém a escolha atual. O painel usa imagens do jogo para algumas armas e veículos e ilustrações genéricas identificadas para roupas e outros veículos.
+
+Jogador > Habilidades oferece superpulo e corrida e natação rápidas. Armas oferece munição infinita para a arma atual, sem recarga e acessórios compatíveis. Veículos oferece controles de portas, vidros e motor e três espaços para salvar carros. Roupas > Trajes salvos oferece três espaços para o mesmo protagonista. Salvar substitui o conteúdo anterior do espaço. Os veículos salvos preservam modelo, cores padrão, rodas, peças, turbo e placa; não são cópias completas de todos os detalhes. O menu principal permite desligar efeitos ativos.
 
 Polícia: alterne Nunca procurado para limpar as estrelas continuamente. Escolher um nível de procurado desliga essa opção. Em Pedestres, atraia até dez civis próximos por alguns segundos.
+
+Pedestres também oferece até três guarda-costas e um motorista. Para chamar o motorista, marque o destino no mapa e esteja como passageiro em um carro parado, com o banco do motorista livre. A disponibilidade do destino depende do terreno carregado.
 
 Com o menu fechado: Ctrl+F5 restaura vida e colete; Ctrl+F6 repara e limpa o veículo; Ctrl+F7 alterna Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções precisam ser testadas dentro do jogo.
 
@@ -39,6 +43,6 @@ Confira se o jogo é GTA V Legacy, se os dois pré-requisitos estão instalados 
 
 Já usava uma versão antiga do Mike Menu? Remova MenuHistoria.3.dll ou DinheiroHistoria.3.cs da pasta scripts antes de instalar a nova, para não abrir dois menus iguais.
 
-Para desinstalar, feche o jogo e apague somente o arquivo MikeMenu.3.dll da pasta scripts.
+Para desinstalar, feche o jogo e apague o arquivo MikeMenu.3.dll e a pasta MikeMenuAssets de scripts. Os favoritos ficam na pasta scripts/MikeMenu; preserve-a se quiser guardá-los.
 
 O menu é exclusivo para o modo história. Remova os mods antes de entrar no GTA Online.

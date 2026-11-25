@@ -10,7 +10,7 @@
 **Já usa mods de script no GTA?** Então é só:
 
 1. [Baixar o Mike Menu](https://github.com/mayc7n/menugtav/raw/refs/heads/main/MikeMenu.zip) e extrair o ZIP.
-2. Com o jogo fechado, copiar a pasta **scripts** extraída e colar na pasta do GTA V, onde fica o `GTA5.exe`. Se já existir uma pasta `scripts`, copie apenas o arquivo `MikeMenu.3.dll` para dentro dela.
+2. Com o jogo fechado, copiar a pasta **scripts** extraída e colar na pasta do GTA V, onde fica o `GTA5.exe`. Se já existir uma pasta `scripts`, copie para dentro dela o arquivo `MikeMenu.3.dll` e a pasta `MikeMenuAssets`.
 3. Abrir o modo história e apertar **Del**. Pronto!
 
 **É a primeira vez que usa mods?** Antes dos passos acima, instale o [Script Hook V](https://www.dev-c.com/gtav/scripthookv/) e o [ScriptHookVDotNet](https://github.com/scripthookvdotnet/scripthookvdotnet/wiki/Getting-Started). Eles são necessários para o menu funcionar e têm suas próprias instruções de instalação. Faça uma cópia do seu save antes de começar.
@@ -25,7 +25,9 @@ Você encontra opções para cuidar do personagem, ajustar o nível de procurado
 
 Em **Armas**, escolha uma arma individual ou reponha a munição. Em **Roupas**, escolha uma peça e percorra modelos e texturas: a mudança aparece diretamente no personagem. Para desfazer, use **Restaurar peça anterior** antes de sair daquela peça; voltar ou fechar o menu mantém a escolha atual. Em **Veículo atual**, há também opções para tentar desvirar o veículo e ligar o motor. Os nomes dos veículos usam a tradução disponível no jogo.
 
-Em **Polícia**, ative ou desative **Nunca procurado**; escolher um nível de procurado desliga essa opção. Em **Pedestres**, é possível atrair até dez civis próximos por alguns segundos. O menu mostra miniaturas para oito armas e para Adder, Cheetah, Banshee, Zentorno e BMX quando as imagens do jogo estiverem disponíveis; as outras opções mostram uma indicação de imagem indisponível. Roupas aparecem no próprio personagem.
+Em **Polícia**, ative ou desative **Nunca procurado**; escolher um nível de procurado desliga essa opção. Em **Pedestres**, é possível atrair até dez civis próximos por alguns segundos, chamar até três guarda-costas ou solicitar um motorista. Para o motorista, marque um destino, entre como passageiro em um carro parado e deixe o banco do motorista livre. O menu tenta usar imagens do jogo para oito armas e cinco veículos; para outros veículos e roupas usa ilustrações genéricas identificadas. A roupa escolhida aparece no próprio personagem.
+
+Em **Jogador → Habilidades**, alterne superpulo, corrida e natação rápidas; há também animações e acesso ao paraquedas. Em **Armas**, há munição infinita para a arma selecionada, opção sem recarga, acessórios compatíveis e tiros explosivos ou incendiários. Em **Veículos**, há controles de portas, vidros e motor, e três espaços para salvar e recriar carros. Em **Roupas → Trajes salvos**, salve e aplique trajes do mesmo protagonista. Cada gravação substitui o conteúdo anterior do espaço. Veículos salvos preservam modelo, cores padrão, rodas, peças disponíveis, turbo e placa; cores personalizadas, neon e alguns detalhes podem não ser recuperados. Em **Mundo**, alterne relógio parado e blecaute. No menu principal, **Desligar efeitos ativos** desativa os efeitos temporários do menu.
 
 Com o menu fechado, use **Ctrl+F5** para recuperar vida e colete, **Ctrl+F6** para reparar e limpar o veículo atual e **Ctrl+F7** para alternar Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções e imagens precisam de teste dentro do GTA V; sua disponibilidade depende do personagem, veículo e versão do jogo.
 
@@ -33,7 +35,7 @@ Com o menu fechado, use **Ctrl+F5** para recuperar vida e colete, **Ctrl+F6** pa
 
 - **O menu não abriu?** Confira se os dois pré-requisitos estão instalados, se o arquivo `MikeMenu.3.dll` ficou na pasta `scripts` do jogo e se você está no modo história. Depois, reinicie o jogo.
 - **Já tinha o menu antigo?** Remova `MenuHistoria.3.dll` ou `DinheiroHistoria.3.cs` da pasta `scripts` antes de instalar a versão nova, para evitar dois menus iguais.
-- **Quer desinstalar?** Feche o jogo e remova apenas `scripts/MikeMenu.3.dll` da pasta do GTA.
+- **Quer desinstalar?** Feche o jogo e remova `scripts/MikeMenu.3.dll` e a pasta `scripts/MikeMenuAssets`. Os favoritos ficam em `scripts/MikeMenu`; preserve essa pasta se quiser mantê-los.
 
 O [guia de instalação](desenvolvimento/LEIA-ME.txt) também está dentro do ZIP. Para detalhes sobre erros, consulte `ScriptHookVDotNet.log` na pasta do jogo.
 

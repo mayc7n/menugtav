@@ -13,6 +13,10 @@ class TestesRegras {
   Verificar(!RegrasMikeMenu.PodeEditar(false, false, true, true), "troca");
   Verificar(!RegrasMikeMenu.PodeEditar(false, false, false, false), "personagem");
   Verificar(RegrasMikeMenu.PodeEditar(false, false, false, true), "modo historia");
+  Verificar(PreviaMikeMenu.NomeSeguro("veiculo") && PreviaMikeMenu.NomeSeguro("roupa"), "imagens locais validas");
+  Verificar(!PreviaMikeMenu.NomeSeguro("../fora") && !PreviaMikeMenu.NomeSeguro(null), "impede caminho invalido");
+  Verificar(RegrasMikeMenu.PaginaPrincipal(2) == "veiculos" && RegrasMikeMenu.PaginaPrincipal(8) == "dinheiro", "navegacao principal organizada");
+  Verificar(RegrasMikeMenu.PaginaPrincipal(-1) == null && RegrasMikeMenu.PaginaPrincipal(9) == null, "navegacao fora da lista");
   Verificar(RegrasMikeMenu.MoverSelecao(0, -1, 4) == 3, "volta ao fim");
   Verificar(RegrasMikeMenu.MoverSelecao(3, 1, 4) == 0, "volta ao inicio");
   Verificar(RegrasMikeMenu.MoverSelecao(0, 1, 0) == 0, "lista vazia");

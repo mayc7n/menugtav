@@ -26,6 +26,11 @@ public static class RegrasMikeMenu
         foreach (int valor in valores) if (vistos.Add(valor)) resultado.Add(valor);
         return resultado.ToArray();
     }
+    public static string PaginaPrincipal(int indice)
+    {
+        string[] paginas = { "jogador", "armas", "veiculos", "roupas", "policia", "teletransporte", "mundo", "pedestres", "dinheiro" };
+        return indice >= 0 && indice < paginas.Length ? paginas[indice] : null;
+    }
     public static int ProximaVariacao(int atual, int quantidade) { return quantidade <= 0 ? -1 : atual < 0 || atual >= quantidade ? 0 : (atual + 1) % quantidade; }
     public static int InicioJanela(int indiceSelecionado, int quantidade, int visiveis) { if (quantidade <= 0 || visiveis <= 0) return 0; return Math.Min(Math.Max(0, indiceSelecionado - visiveis + 1), Math.Max(0, quantidade - visiveis)); }
     public static bool DestinoValido(float x, float y, float z) { return !float.IsNaN(x) && !float.IsInfinity(x) && !float.IsNaN(y) && !float.IsInfinity(y) && !float.IsNaN(z) && !float.IsInfinity(z) && Math.Abs(x) < 16000f && Math.Abs(y) < 16000f && z > -200f && z < 3000f; }
@@ -40,6 +45,12 @@ public static class RegrasMikeMenu
 public class MikeMenu : Script
 {
     private bool ocupado, aberto, jogadorInvencivel, nuncaProcurado;
+    private readonly CompanheirosMikeMenu companheiros = new CompanheirosMikeMenu();
+    private bool superPulo, corridaRapida, natacaoRapida, municaoInfinita, semRecarga, relogioParado, blecaute;
+    private bool tirosExplosivos, tirosIncendiarios;
+    private int pedAnimacao;
+    private string dicionarioAnimacao, nomeAnimacao;
+    private int pedMunicao, armaMunicao, pedSemRecarga;
     private Vehicle veiculoProtegido;
     private Ped personagemProtegido;
     private string pagina = "principal";
@@ -71,8 +82,10 @@ public class MikeMenu : Script
     }
     private void LimparProtecoes()
     {
+        companheiros.Limpar();
         LiberarPrevia();
         nuncaProcurado = false;
+        LimparEfeitosAdicionais();
         if (jogadorInvencivel) { Function.Call(Hash.SET_PLAYER_INVINCIBLE, Game.Player.Handle, false); jogadorInvencivel = false; }
         if (personagemProtegido != null && personagemProtegido.Exists()) personagemProtegido.IsInvincible = false;
         personagemProtegido = null;
@@ -92,7 +105,7 @@ public class MikeMenu : Script
     private void AoAtualizar(object remetente, EventArgs e)
     {
         int m;
-        bool precisaValidar = aberto || jogadorInvencivel || nuncaProcurado || veiculoProtegido != null;
+        bool precisaValidar = aberto || jogadorInvencivel || nuncaProcurado || veiculoProtegido != null || superPulo || corridaRapida || natacaoRapida || municaoInfinita || semRecarga || relogioParado || blecaute || tirosExplosivos || tirosIncendiarios || pedAnimacao != 0 || companheiros.TemAtivos;
         if (precisaValidar && !EstaPronto(out m))
         {
             aberto = false;
@@ -102,6 +115,7 @@ public class MikeMenu : Script
         }
         if (jogadorInvencivel) AplicarProtecaoJogador();
         if (nuncaProcurado) Function.Call(Hash.CLEAR_PLAYER_WANTED_LEVEL, Game.Player.Handle);
+        AtualizarEfeitos();
         if (!aberto || ocupado) return;
         string[] itens = ObterItens();
         const float x = 36f, largura = 338f, topo = 42f, alturaCabecalho = 58f, alturaSecao = 31f, alturaLinha = 32f;
@@ -148,8 +162,10 @@ public class MikeMenu : Script
     {
         if (pagina != "modelos" && pagina != "lista_armas" && pagina != "roupas" && pagina != "roupa_peca") { LiberarPrevia(); return; }
         string dicionario = null, textura = null;
+        bool roupa = pagina == "roupas" || pagina == "roupa_peca";
+        bool veiculo = pagina == "modelos";
         if (pagina == "lista_armas" && indiceSelecionado < iconesArmas.Length) { dicionario = dicionariosArmas[indiceSelecionado]; textura = iconesArmas[indiceSelecionado]; }
-        else if (pagina == "modelos" && indiceSelecionado < modelos.Length)
+        else if (veiculo && indiceSelecionado < modelos.Length)
         {
             int codigo = (int)modelos[indiceSelecionado];
             string[] carros = { "adder", "cheetah", "banshee", "zentorno", "bmx" };
@@ -159,48 +175,61 @@ public class MikeMenu : Script
         if (dicionarioPrevia != dicionario)
         {
             LiberarPrevia();
-            if (dicionario != null) { dicionarioPrevia = dicionario; inicioPrevia = Game.GameTime; Function.Call(Hash.REQUEST_STREAMED_TEXTURE_DICT, dicionario, false); }
+            if (dicionario != null) { dicionarioPrevia = dicionario; inicioPrevia = Game.GameTime; }
+        }
+        bool pronta = false;
+        if (dicionario != null)
+        {
+            if (!Function.Call<bool>(Hash.HAS_STREAMED_TEXTURE_DICT_LOADED, dicionario))
+                Function.Call(Hash.REQUEST_STREAMED_TEXTURE_DICT, dicionario, false);
+            pronta = Function.Call<bool>(Hash.HAS_STREAMED_TEXTURE_DICT_LOADED, dicionario);
         }
         const float x = 382f, y = 100f;
         DesenharFundo(x, y, 230f, 160f, System.Drawing.Color.FromArgb(225, 12, 16, 20));
         DesenharTexto("PREVIA", x + 12f, y + 7f, 0.31f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
-        if (dicionario == null)
+        if (pronta && !roupa)
         {
-            string mensagem = pagina == "roupas" || pagina == "roupa_peca" ? "Veja a roupa no personagem" : "Imagem indisponivel";
-            DesenharTexto(mensagem, x + 12f, y + 72f, 0.27f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
+            if (veiculo) { PreviaMikeMenu.Desenhar("veiculo", x + 12f, y + 31f, 206f, 98f); DesenharTexto("IMAGEM PODE SER ILUSTRATIVA", x + 12f, y + 134f, 0.22f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon); }
+            Function.Call(Hash.DRAW_SPRITE, dicionario, textura, (x + 12f + 103f) / 1280f, (y + 38f + 55f) / 720f, 206f / 1280f, 110f / 720f, 0f, 255, 255, 255, 255);
         }
-        else if (Function.Call<bool>(Hash.HAS_STREAMED_TEXTURE_DICT_LOADED, dicionario))
+        else if (roupa || veiculo)
         {
-            GTA.Math.Vector3 resolucao = Function.Call<GTA.Math.Vector3>(Hash.GET_TEXTURE_RESOLUTION, dicionario, textura);
-            if (resolucao.X <= 4f && resolucao.Y <= 4f) DesenharTexto("Imagem indisponivel", x + 12f, y + 72f, 0.27f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
-            else Function.Call(Hash.DRAW_SPRITE, dicionario, textura, (x + 12f + 103f) / 1280f, (y + 38f + 55f) / 720f, 206f / 1280f, 110f / 720f, 0f, 255, 255, 255, 255);
+            bool desenhou = PreviaMikeMenu.Desenhar(roupa ? "roupa" : "veiculo", x + 12f, y + 31f, 206f, 98f);
+            if (!desenhou) DesenharTexto("Ilustracao indisponivel", x + 12f, y + 67f, 0.26f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
+            DesenharTexto(roupa ? "ILUSTRATIVA - veja no personagem" : "ILUSTRACAO GENERICA", x + 12f, y + 134f, 0.22f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
         }
-        else DesenharTexto(Game.GameTime - inicioPrevia > 3000 ? "Imagem indisponivel" : "Carregando imagem...", x + 12f, y + 72f, 0.27f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
+        else DesenharTexto(dicionario != null && Game.GameTime - inicioPrevia <= 3000 ? "Carregando imagem..." : "Imagem indisponivel", x + 12f, y + 72f, 0.27f, System.Drawing.Color.White, GTA.UI.Font.ChaletLondon);
     }
     private string[] ObterItens()
     {
         switch (pagina)
         {
-            case "principal": return new[] { "Dinheiro", "Jogador", "Policia", "Armas", "Roupas", "Veiculos: escolher", "Veiculo atual: tunagem", "Teletransporte", "Mundo", "Pedestres" };
+            case "principal": return new[] { "Jogador", "Armas", "Veiculos", "Roupas", "Policia", "Teletransporte", "Mundo", "Pedestres", "Dinheiro", "Desligar efeitos ativos" };
             case "dinheiro": return new[] { "Definir saldo", "Adicionar valor", "Adicionar $100.000", "Adicionar $1.000.000" };
-            case "jogador": return new[] { "Restaurar vida e colete", "Invencibilidade: " + (jogadorInvencivel ? "LIGADA" : "DESLIGADA"), "Recuperar habilidade especial", "Limpar sangue e sujeira" };
+            case "jogador": return new[] { "Restaurar vida e colete", "Invencibilidade: " + Estado(jogadorInvencivel), "Recuperar habilidade especial", "Limpar sangue e sujeira", "Habilidades de movimento", "Animacoes", "Receber paraquedas" };
+            case "animacoes": return new[] { "Flexoes", "Acenar", "Parar animacao" };
+            case "habilidades": return new[] { "Superpulo: " + Estado(superPulo), "Corrida rapida: " + Estado(corridaRapida), "Natacao rapida: " + Estado(natacaoRapida) };
+            case "veiculos": return new[] { "Escolher veiculo", "Tunagem e reparos", "Portas, vidros e motor", "Garagem: salvar e carregar" };
+            case "garagem": return new[] { "Salvar veiculo: espaco 1", "Salvar veiculo: espaco 2", "Salvar veiculo: espaco 3", "Criar salvo: espaco 1", "Criar salvo: espaco 2", "Criar salvo: espaco 3" };
+            case "controles_veiculo": return new[] { "Abrir portas", "Fechar portas", "Abaixar vidros", "Subir vidros", "Ligar motor", "Desligar motor" };
             case "policia": return new[] { "Limpar procurado", "Nivel 1", "Nivel 2", "Nivel 3", "Nivel 4", "Nivel 5", "Nunca procurado: " + (nuncaProcurado ? "LIGADO" : "DESLIGADO") };
-            case "pedestres": return new[] { "Atrair pedestres proximos" };
-            case "armas": return new[] { "Receber todas as armas disponiveis", "Completar municao", "Remover armas", "Escolher arma" };
+            case "pedestres": return new[] { "Atrair pedestres proximos", "Chamar guarda-costas", "Dispensar guarda-costas", "Chamar motorista ao marcador", "Dispensar motorista" };
+            case "armas": return new[] { "Receber todas as armas disponiveis", "Completar municao", "Remover armas", "Escolher arma", "Municao infinita: " + Estado(municaoInfinita), "Sem recarga: " + Estado(semRecarga), "Equipar acessorios compativeis", "Tiros explosivos: " + Estado(tirosExplosivos), "Tiros incendiarios: " + Estado(tirosIncendiarios) };
             case "lista_armas": return armasNomes;
-            case "roupas": return nomesRoupa;
+            case "roupas": { var itens = new string[nomesRoupa.Length + 1]; nomesRoupa.CopyTo(itens, 0); itens[nomesRoupa.Length] = "Trajes salvos"; return itens; }
+            case "trajes_salvos": return new[] { "Salvar traje: espaco 1", "Salvar traje: espaco 2", "Salvar traje: espaco 3", "Aplicar traje: espaco 1", "Aplicar traje: espaco 2", "Aplicar traje: espaco 3" };
             case "roupa_peca": return new[] { "Proximo modelo", "Proxima textura", "Restaurar peca anterior" };
             case "categorias": { var a = new string[categorias.Length + 1]; categorias.CopyTo(a, 0); a[a.Length - 1] = "Buscar por nome interno"; return a; }
             case "modelos": return nomesModelos;
             case "tunagem": return new[] { "Reparar e limpar", "Melhorar desempenho ao maximo", "Turbo ligado", "Turbo desligado", "Cor: preto", "Cor: branco", "Cor: vermelho", "Cor: azul", "Cor: dourado", "Invencibilidade do veiculo", "Personalizar pecas", "Desvirar veiculo", "Ligar motor" };
             case "pecas": return new[] { "Aerofolio", "Para-choque dianteiro", "Para-choque traseiro", "Saias", "Escapamento", "Gaiola", "Grade", "Capo", "Paralama esquerdo", "Paralama direito", "Teto", "Buzina", "Suspensao", "Rodas" };
             case "teletransporte": return new[] { "Marcador do mapa", "Aeroporto de Los Santos", "Praia de Vespucci", "Observatorio Galileo", "Pier de Del Perro", "Monte Chiliad", "Aerodromo de Sandy Shores" };
-            case "mundo": return new[] { "Manha: 08:00", "Meio-dia: 12:00", "Noite: 22:00", "Ensolarado", "Limpo", "Nublado", "Chuva", "Tempestade" };
+            case "mundo": return new[] { "Manha: 08:00", "Meio-dia: 12:00", "Noite: 22:00", "Ensolarado", "Limpo", "Nublado", "Chuva", "Tempestade", "Relogio parado: " + Estado(relogioParado), "Blecaute: " + Estado(blecaute) };
             default: return new string[0];
         }
     }
     private void AbrirPagina(string alvo) { LiberarPrevia(); pagina = alvo; indiceSelecionado = 0; }
-    private void Voltar() { if (pagina == "principal") { aberto = false; LiberarPrevia(); } else if (pagina == "modelos") AbrirPagina("categorias"); else if (pagina == "pecas") AbrirPagina("tunagem"); else if (pagina == "lista_armas") AbrirPagina("armas"); else if (pagina == "roupa_peca") AbrirPagina("roupas"); else AbrirPagina("principal"); }
+    private void Voltar() { if (pagina == "principal") { aberto = false; LiberarPrevia(); } else if (pagina == "modelos") AbrirPagina("categorias"); else if (pagina == "pecas") AbrirPagina("tunagem"); else if (pagina == "habilidades" || pagina == "animacoes") AbrirPagina("jogador"); else if (pagina == "categorias" || pagina == "tunagem" || pagina == "controles_veiculo" || pagina == "garagem") AbrirPagina("veiculos"); else if (pagina == "lista_armas") AbrirPagina("armas"); else if (pagina == "roupa_peca" || pagina == "trajes_salvos") AbrirPagina("roupas"); else AbrirPagina("principal"); }
     private void AoPressionarTecla(object remetente, KeyEventArgs e)
     {
         if (ocupado) return;
@@ -243,21 +272,27 @@ public class MikeMenu : Script
     private void AtivarOpcao(int antes)
     {
         var personagem = Game.Player.Character;
-        if (pagina == "principal") { string[] paginas = { "dinheiro", "jogador", "policia", "armas", "roupas", "categorias", "tunagem", "teletransporte", "mundo", "pedestres" }; AbrirPagina(paginas[indiceSelecionado]); return; }
+        if (pagina == "principal") { if (indiceSelecionado == 9) { LimparProtecoes(); ExibirMensagem("Efeitos ativos do menu desligados."); return; } string alvo = RegrasMikeMenu.PaginaPrincipal(indiceSelecionado); if (alvo != null) AbrirPagina(alvo); return; }
+        if (pagina == "veiculos") { string[] paginas = { "categorias", "tunagem", "controles_veiculo", "garagem" }; AbrirPagina(paginas[indiceSelecionado]); return; }
+        if (pagina == "garagem") { string mensagem; int slot = indiceSelecionado % 3 + 1; if (indiceSelecionado < 3) FavoritosMikeMenu.SalvarVeiculo(personagem.CurrentVehicle, slot, out mensagem); else FavoritosMikeMenu.CriarVeiculo(personagem, slot, out mensagem); ExibirMensagem(mensagem); return; }
+        if (pagina == "trajes_salvos") { string mensagem; int slot = indiceSelecionado % 3 + 1; if (indiceSelecionado < 3) FavoritosMikeMenu.SalvarTraje(personagem, slot, out mensagem); else FavoritosMikeMenu.AplicarTraje(personagem, slot, out mensagem); ExibirMensagem(mensagem); return; }
+        if (pagina == "controles_veiculo") { ControlarVeiculo(personagem.CurrentVehicle); return; }
         if (pagina == "dinheiro") { if (indiceSelecionado < 2) { ocupado = false; AlterarDinheiro(indiceSelecionado == 1); ocupado = true; } else { int total; string quantia = indiceSelecionado == 2 ? "100000" : "1000000"; if (RegrasMikeMenu.TentarCalcular(quantia, Game.Player.Money, true, out total)) { Game.Player.Money = total; ExibirMensagem("Saldo atualizado. Salve o jogo."); } else ExibirMensagem("Limite de dinheiro atingido."); } return; }
-        if (pagina == "jogador") { if (indiceSelecionado == 0) { personagem.Health = personagem.MaxHealth; personagem.Armor = 100; } else if (indiceSelecionado == 1) { jogadorInvencivel = !jogadorInvencivel; if (jogadorInvencivel) { AplicarProtecaoJogador(); ExibirMensagem("Invencibilidade ligada."); } else { Function.Call(Hash.SET_PLAYER_INVINCIBLE, Game.Player.Handle, false); if (personagemProtegido != null && personagemProtegido.Exists()) personagemProtegido.IsInvincible = false; personagemProtegido = null; ExibirMensagem("Invencibilidade desligada."); } } else if (indiceSelecionado == 2) Function.Call(Hash.SPECIAL_ABILITY_FILL_METER, Game.Player.Handle, true); else { Function.Call(Hash.CLEAR_PED_BLOOD_DAMAGE, personagem.Handle); Function.Call(Hash.CLEAR_PED_ENV_DIRT, personagem.Handle); ExibirMensagem("Personagem limpo."); } return; }
+        if (pagina == "habilidades") { if (indiceSelecionado == 0) superPulo = !superPulo; else if (indiceSelecionado == 1) { corridaRapida = !corridaRapida; if (!corridaRapida) Function.Call(Hash.SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER, Game.Player.Handle, 1f); } else { natacaoRapida = !natacaoRapida; if (!natacaoRapida) Function.Call(Hash.SET_SWIM_MULTIPLIER_FOR_PLAYER, Game.Player.Handle, 1f); } return; }
+        if (pagina == "animacoes") { if (indiceSelecionado == 2) PararAnimacao(); else IniciarAnimacao(personagem, indiceSelecionado); return; }
+        if (pagina == "jogador") { if (indiceSelecionado == 5) { AbrirPagina("animacoes"); return; } if (indiceSelecionado == 6) { int paraquedas = Game.GenerateHash("GADGET_PARACHUTE"); if (Function.Call<bool>(Hash.IS_WEAPON_VALID, paraquedas)) { Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, paraquedas, 1, false, false); ExibirMensagem("Paraquedas solicitado."); } else ExibirMensagem("Paraquedas indisponivel."); return; } if (indiceSelecionado == 4) { AbrirPagina("habilidades"); return; } if (indiceSelecionado == 0) { personagem.Health = personagem.MaxHealth; personagem.Armor = 100; } else if (indiceSelecionado == 1) { jogadorInvencivel = !jogadorInvencivel; if (jogadorInvencivel) { AplicarProtecaoJogador(); ExibirMensagem("Invencibilidade ligada."); } else { Function.Call(Hash.SET_PLAYER_INVINCIBLE, Game.Player.Handle, false); if (personagemProtegido != null && personagemProtegido.Exists()) personagemProtegido.IsInvincible = false; personagemProtegido = null; ExibirMensagem("Invencibilidade desligada."); } } else if (indiceSelecionado == 2) Function.Call(Hash.SPECIAL_ABILITY_FILL_METER, Game.Player.Handle, true); else { Function.Call(Hash.CLEAR_PED_BLOOD_DAMAGE, personagem.Handle); Function.Call(Hash.CLEAR_PED_ENV_DIRT, personagem.Handle); ExibirMensagem("Personagem limpo."); } return; }
         if (pagina == "policia") { if (indiceSelecionado == 6) AlternarNuncaProcurado(); else { if (indiceSelecionado > 0 && nuncaProcurado) { nuncaProcurado = false; ExibirMensagem("Nunca procurado desligado."); } Game.Player.WantedLevel = indiceSelecionado; } return; }
-        if (pagina == "pedestres") { AtrairPedestres(personagem); return; }
-        if (pagina == "armas") { if (indiceSelecionado == 3) { AbrirPagina("lista_armas"); return; } if (indiceSelecionado == 2) Function.Call(Hash.REMOVE_ALL_PED_WEAPONS, personagem.Handle, true); else if (indiceSelecionado == 0) { int recebidas = 0; var vistos = new System.Collections.Generic.HashSet<int>(); foreach (WeaponHash arma in Enum.GetValues(typeof(WeaponHash))) { int codigo = unchecked((int)arma); if (arma == WeaponHash.Unarmed || !vistos.Add(codigo) || !Function.Call<bool>(Hash.IS_WEAPON_VALID, codigo)) continue; Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, codigo, 999, false, false); if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, codigo, false)) recebidas++; } ExibirMensagem(recebidas + " armas aceitas pelo personagem."); } if (indiceSelecionado == 1) { foreach (WeaponHash w in Enum.GetValues(typeof(WeaponHash))) if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, (int)w, false)) Function.Call(Hash.SET_PED_AMMO, personagem.Handle, (int)w, 999); } return; }
+        if (pagina == "pedestres") { if (indiceSelecionado == 0) AtrairPedestres(personagem); else if (indiceSelecionado == 1) ExibirMensagem(companheiros.ChamarGuarda(personagem)); else if (indiceSelecionado == 2) ExibirMensagem(companheiros.DispensarGuardas()); else if (indiceSelecionado == 3) ExibirMensagem(companheiros.ChamarMotorista(personagem)); else ExibirMensagem(companheiros.DispensarMotorista()); return; }
+        if (pagina == "armas") { if (indiceSelecionado == 7) { tirosExplosivos = !tirosExplosivos; if (tirosExplosivos) tirosIncendiarios = false; return; } if (indiceSelecionado == 8) { tirosIncendiarios = !tirosIncendiarios; if (tirosIncendiarios) tirosExplosivos = false; return; } if (indiceSelecionado == 4) { municaoInfinita = !municaoInfinita; if (!municaoInfinita) DesativarMunicao(); return; } if (indiceSelecionado == 5) { semRecarga = !semRecarga; if (!semRecarga) DesativarSemRecarga(); return; } if (indiceSelecionado == 6) { EquiparAcessorios(personagem); return; } if (indiceSelecionado == 3) { AbrirPagina("lista_armas"); return; } if (indiceSelecionado == 2) Function.Call(Hash.REMOVE_ALL_PED_WEAPONS, personagem.Handle, true); else if (indiceSelecionado == 0) { int recebidas = 0; var vistos = new System.Collections.Generic.HashSet<int>(); foreach (WeaponHash arma in Enum.GetValues(typeof(WeaponHash))) { int codigo = unchecked((int)arma); if (arma == WeaponHash.Unarmed || !vistos.Add(codigo) || !Function.Call<bool>(Hash.IS_WEAPON_VALID, codigo)) continue; Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, codigo, 999, false, false); if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, codigo, false)) recebidas++; } ExibirMensagem(recebidas + " armas aceitas pelo personagem."); } if (indiceSelecionado == 1) { foreach (WeaponHash w in Enum.GetValues(typeof(WeaponHash))) if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, (int)w, false)) Function.Call(Hash.SET_PED_AMMO, personagem.Handle, (int)w, 999); } return; }
         if (pagina == "lista_armas") { int arma = Game.GenerateHash(armasCodigos[indiceSelecionado]); if (!Function.Call<bool>(Hash.IS_WEAPON_VALID, arma)) ExibirMensagem("Arma indisponivel nesta versao."); else { Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, arma, 250, false, true); ExibirMensagem("Arma solicitada."); } return; }
-        if (pagina == "roupas") { componenteRoupa = componentesRoupa[indiceSelecionado]; pedRoupa = personagem.Handle; roupaOriginal = Function.Call<int>(Hash.GET_PED_DRAWABLE_VARIATION, pedRoupa, componenteRoupa); texturaOriginal = Function.Call<int>(Hash.GET_PED_TEXTURE_VARIATION, pedRoupa, componenteRoupa); AbrirPagina("roupa_peca"); return; }
+        if (pagina == "roupas") { if (indiceSelecionado == nomesRoupa.Length) { AbrirPagina("trajes_salvos"); return; } componenteRoupa = componentesRoupa[indiceSelecionado]; pedRoupa = personagem.Handle; roupaOriginal = Function.Call<int>(Hash.GET_PED_DRAWABLE_VARIATION, pedRoupa, componenteRoupa); texturaOriginal = Function.Call<int>(Hash.GET_PED_TEXTURE_VARIATION, pedRoupa, componenteRoupa); AbrirPagina("roupa_peca"); return; }
         if (pagina == "roupa_peca") { AlterarRoupa(personagem); return; }
         if (pagina == "categorias") { if (indiceSelecionado == categorias.Length) { string nome = Game.GetUserInput(""); int depois; if (!string.IsNullOrWhiteSpace(nome) && EstaPronto(out depois) && antes == depois) CriarVeiculo(new Model(nome)); } else { categoria = indiceSelecionado; CarregarModelos(); AbrirPagina("modelos"); if (modelos.Length == 0) ExibirMensagem("Nenhum modelo disponivel nesta categoria."); } return; }
         if (pagina == "modelos") { CriarVeiculo(new Model((int)modelos[indiceSelecionado])); return; }
         if (pagina == "tunagem") { if (indiceSelecionado == 10) AbrirPagina("pecas"); else TunarVeiculo(personagem.CurrentVehicle); return; }
         if (pagina == "pecas") { Personalizar(personagem.CurrentVehicle); return; }
         if (pagina == "teletransporte") { Teletransportar(antes); return; }
-        if (pagina == "mundo") { if (indiceSelecionado < 3) Function.Call(Hash.SET_CLOCK_TIME, indiceSelecionado == 0 ? 8 : indiceSelecionado == 1 ? 12 : 22, 0, 0); else { string[] weather = { "EXTRASUNNY", "CLEAR", "CLOUDS", "RAIN", "THUNDER" }; Function.Call(Hash.SET_WEATHER_TYPE_NOW_PERSIST, weather[indiceSelecionado - 3]); } }
+        if (pagina == "mundo") { if (indiceSelecionado == 8) { relogioParado = !relogioParado; Function.Call(Hash.PAUSE_CLOCK, relogioParado); return; } if (indiceSelecionado == 9) { blecaute = !blecaute; Function.Call(Hash.SET_ARTIFICIAL_LIGHTS_STATE, blecaute); return; } if (indiceSelecionado < 3) Function.Call(Hash.SET_CLOCK_TIME, indiceSelecionado == 0 ? 8 : indiceSelecionado == 1 ? 12 : 22, 0, 0); else { string[] weather = { "EXTRASUNNY", "CLEAR", "CLOUDS", "RAIN", "THUNDER" }; Function.Call(Hash.SET_WEATHER_TYPE_NOW_PERSIST, weather[indiceSelecionado - 3]); } }
     }
     private void AlterarRoupa(Ped personagem)
     {
@@ -293,6 +328,102 @@ public class MikeMenu : Script
         if (modelo < 0 || textura < 0 || !Function.Call<bool>(Hash.IS_PED_COMPONENT_VARIATION_VALID, pedRoupa, componenteRoupa, modelo, textura)) { ExibirMensagem("Variacao indisponivel para este personagem."); return; }
         Function.Call(Hash.SET_PED_COMPONENT_VARIATION, pedRoupa, componenteRoupa, modelo, textura, 0);
         ExibirMensagem("Modelo " + modelo + " / textura " + textura + ". Visualize no personagem.");
+    }
+    private string Estado(bool ligado) { return ligado ? "LIGADO" : "DESLIGADO"; }
+    private void DesativarMunicao()
+    {
+        if (pedMunicao != 0 && Function.Call<bool>(Hash.DOES_ENTITY_EXIST, pedMunicao)) Function.Call(Hash.SET_PED_INFINITE_AMMO, pedMunicao, false, armaMunicao);
+        pedMunicao = 0; armaMunicao = 0;
+    }
+    private void DesativarSemRecarga()
+    {
+        if (pedSemRecarga != 0 && Function.Call<bool>(Hash.DOES_ENTITY_EXIST, pedSemRecarga)) Function.Call(Hash.SET_PED_INFINITE_AMMO_CLIP, pedSemRecarga, false);
+        pedSemRecarga = 0;
+    }
+    private void LimparEfeitosAdicionais()
+    {
+        superPulo = false; tirosExplosivos = false; tirosIncendiarios = false; PararAnimacao();
+        if (corridaRapida) Function.Call(Hash.SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER, Game.Player.Handle, 1f);
+        if (natacaoRapida) Function.Call(Hash.SET_SWIM_MULTIPLIER_FOR_PLAYER, Game.Player.Handle, 1f);
+        corridaRapida = false; natacaoRapida = false;
+        DesativarMunicao(); municaoInfinita = false;
+        DesativarSemRecarga(); semRecarga = false;
+        if (relogioParado) Function.Call(Hash.PAUSE_CLOCK, false);
+        if (blecaute) Function.Call(Hash.SET_ARTIFICIAL_LIGHTS_STATE, false);
+        relogioParado = false; blecaute = false;
+    }
+    private void AtualizarEfeitos()
+    {
+        int jogador = Game.Player.Handle;
+        if (superPulo) Function.Call(Hash.SET_SUPER_JUMP_THIS_FRAME, jogador);
+        if (tirosExplosivos) Function.Call(Hash.SET_EXPLOSIVE_AMMO_THIS_FRAME, jogador);
+        if (tirosIncendiarios) Function.Call(Hash.SET_FIRE_AMMO_THIS_FRAME, jogador);
+        if (corridaRapida) Function.Call(Hash.SET_RUN_SPRINT_MULTIPLIER_FOR_PLAYER, jogador, 1.49f);
+        if (natacaoRapida) Function.Call(Hash.SET_SWIM_MULTIPLIER_FOR_PLAYER, jogador, 1.49f);
+        Ped p = Game.Player.Character;
+        if (p == null || !p.Exists()) return;
+        if (semRecarga && pedSemRecarga != p.Handle) { DesativarSemRecarga(); pedSemRecarga = p.Handle; Function.Call(Hash.SET_PED_INFINITE_AMMO_CLIP, pedSemRecarga, true); }
+        if (municaoInfinita)
+        {
+            int arma = Function.Call<int>(Hash.GET_SELECTED_PED_WEAPON, p.Handle);
+            if (pedMunicao != p.Handle || armaMunicao != arma) { DesativarMunicao(); pedMunicao = p.Handle; armaMunicao = arma; Function.Call(Hash.SET_PED_INFINITE_AMMO, pedMunicao, true, armaMunicao); }
+        }
+    }
+    private void PararAnimacao()
+    {
+        if (pedAnimacao != 0 && dicionarioAnimacao != null && Function.Call<bool>(Hash.DOES_ENTITY_EXIST, pedAnimacao))
+            Function.Call(Hash.STOP_ANIM_TASK, pedAnimacao, dicionarioAnimacao, nomeAnimacao, 1f);
+        if (dicionarioAnimacao != null) Function.Call(Hash.REMOVE_ANIM_DICT, dicionarioAnimacao);
+        pedAnimacao = 0; dicionarioAnimacao = null; nomeAnimacao = null;
+    }
+    private void IniciarAnimacao(Ped personagem, int opcao)
+    {
+        if (personagem == null || !personagem.Exists() || personagem.IsDead || personagem.IsInVehicle()) { ExibirMensagem("Saia do veiculo para usar animacoes."); return; }
+        string dicionario = opcao == 0 ? "amb@world_human_push_ups@male@base" : "anim@mp_player_intcelebrationmale@wave";
+        string animacao = opcao == 0 ? "base" : "wave";
+        int antes = personagem.Handle;
+        PararAnimacao();
+        Function.Call(Hash.REQUEST_ANIM_DICT, dicionario);
+        bool carregou = false;
+        try
+        {
+            for (int i = 0; i < 24; i++)
+            {
+                if (Function.Call<bool>(Hash.HAS_ANIM_DICT_LOADED, dicionario)) { carregou = true; break; }
+                Script.Wait(50);
+                int modelo;
+                if (!EstaPronto(out modelo) || Game.Player.Character == null || Game.Player.Character.Handle != antes) break;
+            }
+            int atual;
+            if (!carregou || !EstaPronto(out atual) || Game.Player.Character == null || Game.Player.Character.Handle != antes || !personagem.Exists() || personagem.IsDead || personagem.IsInVehicle()) { ExibirMensagem("Animacao indisponivel ou cancelada."); return; }
+            pedAnimacao = antes; dicionarioAnimacao = dicionario; nomeAnimacao = animacao;
+            Function.Call(Hash.TASK_PLAY_ANIM, antes, dicionario, animacao, 8f, -8f, opcao == 0 ? -1 : 3000, opcao == 0 ? 1 : 0, 0f, false, false, false);
+            ExibirMensagem("Animacao iniciada; selecione Parar animacao para encerrar.");
+        }
+        finally { if (dicionarioAnimacao != dicionario) Function.Call(Hash.REMOVE_ANIM_DICT, dicionario); }
+    }
+    private void EquiparAcessorios(Ped personagem)
+    {
+        int arma = Function.Call<int>(Hash.GET_SELECTED_PED_WEAPON, personagem.Handle);
+        int aplicados = 0;
+        foreach (WeaponComponentHash componente in Enum.GetValues(typeof(WeaponComponentHash)))
+        {
+            int codigo = unchecked((int)componente);
+            if (!Function.Call<bool>(Hash.DOES_WEAPON_TAKE_WEAPON_COMPONENT, arma, codigo)) continue;
+            Function.Call(Hash.GIVE_WEAPON_COMPONENT_TO_PED, personagem.Handle, arma, codigo);
+            aplicados++;
+        }
+        ExibirMensagem(aplicados == 0 ? "Nenhum acessorio compativel encontrado." : "Acessorios compativeis aplicados: " + aplicados + ".");
+    }
+    private void ControlarVeiculo(Vehicle veiculo)
+    {
+        if (veiculo == null || !veiculo.Exists()) { ExibirMensagem("Entre em um veiculo primeiro."); return; }
+        int h = veiculo.Handle;
+        if (indiceSelecionado == 0) for (int i = 0; i < 6; i++) Function.Call(Hash.SET_VEHICLE_DOOR_OPEN, h, i, false, false);
+        else if (indiceSelecionado == 1) Function.Call(Hash.SET_VEHICLE_DOORS_SHUT, h, false);
+        else if (indiceSelecionado == 2) for (int i = 0; i < 4; i++) Function.Call(Hash.ROLL_DOWN_WINDOW, h, i);
+        else if (indiceSelecionado == 3) for (int i = 0; i < 4; i++) Function.Call(Hash.ROLL_UP_WINDOW, h, i);
+        else Function.Call(Hash.SET_VEHICLE_ENGINE_ON, h, indiceSelecionado == 4, true, true);
     }
     private void AlternarNuncaProcurado()
     {
