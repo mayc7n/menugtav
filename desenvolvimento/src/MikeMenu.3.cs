@@ -19,6 +19,7 @@ public static class RegrasMikeMenu
         return true;
     }
     public static int MoverSelecao(int atual, int deslocamento, int quantidade) { return quantidade <= 0 ? 0 : ((atual + deslocamento) % quantidade + quantidade) % quantidade; }
+    public static int ProximaVariacao(int atual, int quantidade) { return quantidade <= 0 ? -1 : atual < 0 || atual >= quantidade ? 0 : (atual + 1) % quantidade; }
     public static int InicioJanela(int indiceSelecionado, int quantidade, int visiveis) { if (quantidade <= 0 || visiveis <= 0) return 0; return Math.Min(Math.Max(0, indiceSelecionado - visiveis + 1), Math.Max(0, quantidade - visiveis)); }
     public static bool DestinoValido(float x, float y, float z) { return !float.IsNaN(x) && !float.IsInfinity(x) && !float.IsNaN(y) && !float.IsInfinity(y) && !float.IsNaN(z) && !float.IsInfinity(z) && Math.Abs(x) < 16000f && Math.Abs(y) < 16000f && z > -200f && z < 3000f; }
     public static bool AceitarSolo(float solo, float esperado, bool destinoFixo) { return DestinoValido(0f, 0f, solo) && (!destinoFixo || Math.Abs(solo - esperado) <= 12f); }
@@ -37,6 +38,12 @@ public class MikeMenu : Script
     private string pagina = "principal";
     private int indiceSelecionado, categoria;
     private VehicleHash[] modelos = new VehicleHash[0];
+    private string[] nomesModelos = new string[0];
+    private int componenteRoupa, roupaOriginal, texturaOriginal, pedRoupa;
+    private readonly int[] componentesRoupa = { 1, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+    private readonly string[] nomesRoupa = { "Mascara", "Bracos", "Calcas", "Bolsa / paraquedas", "Calcados", "Acessorios", "Camisa interna", "Colete", "Detalhes", "Parte superior" };
+    private readonly string[] armasNomes = { "Pistola", "Pistola de combate", "Micro SMG", "SMG", "Rifle de assalto", "Carabina", "Escopeta", "Rifle de precisao", "Granada", "Paraquedas" };
+    private readonly string[] armasCodigos = { "WEAPON_PISTOL", "WEAPON_COMBATPISTOL", "WEAPON_MICROSMG", "WEAPON_SMG", "WEAPON_ASSAULTRIFLE", "WEAPON_CARBINERIFLE", "WEAPON_PUMPSHOTGUN", "WEAPON_SNIPERRIFLE", "WEAPON_GRENADE", "GADGET_PARACHUTE" };
     private readonly string[] categorias = { "Compactos", "Sedans", "SUVs", "Cupes", "Muscle", "Classicos", "Esportivos", "Super", "Motos", "Off-road", "Industriais", "Utilitarios", "Vans", "Bicicletas", "Barcos", "Helicopteros", "Avioes", "Servico", "Emergencia", "Militares", "Comerciais", "Trens", "Formula" };
     public MikeMenu() { KeyDown += AoPressionarTecla; Tick += AoAtualizar; Aborted += AoEncerrar; }
     private void ExibirMensagem(string texto) { GTA.UI.Screen.ShowSubtitle(texto, 6000); }
@@ -109,7 +116,7 @@ public class MikeMenu : Script
         float topoRodape = topoLista + linhas * alturaLinha;
         DesenharFundo(x, topoRodape, largura, 27, System.Drawing.Color.FromArgb(235, 24, 29, 32));
         DesenharTexto("SETAS  NAVEGAR     ENTER  SELECIONAR", x + 11, topoRodape + 3, 0.24f, System.Drawing.Color.FromArgb(235, 220, 226, 228), GTA.UI.Font.ChaletLondon);
-        DesenharTexto("BACKSPACE  VOLTAR     F9  FECHAR", x + 11, topoRodape + 16, 0.21f, System.Drawing.Color.FromArgb(200, 190, 200, 205), GTA.UI.Font.ChaletLondon);
+        DesenharTexto("BACKSPACE  VOLTAR     DEL  FECHAR", x + 11, topoRodape + 16, 0.21f, System.Drawing.Color.FromArgb(200, 190, 200, 205), GTA.UI.Font.ChaletLondon);
     }
     private string TituloPagina()
     {
@@ -121,14 +128,17 @@ public class MikeMenu : Script
     {
         switch (pagina)
         {
-            case "principal": return new[] { "Dinheiro", "Jogador", "Policia", "Armas", "Veiculos: escolher", "Veiculo atual: tunagem", "Teletransporte", "Mundo" };
+            case "principal": return new[] { "Dinheiro", "Jogador", "Policia", "Armas", "Roupas", "Veiculos: escolher", "Veiculo atual: tunagem", "Teletransporte", "Mundo" };
             case "dinheiro": return new[] { "Definir saldo", "Adicionar valor", "Adicionar $100.000", "Adicionar $1.000.000" };
-            case "jogador": return new[] { "Restaurar vida e colete", "Invencibilidade: " + (jogadorInvencivel ? "LIGADA" : "DESLIGADA"), "Recuperar habilidade especial" };
+            case "jogador": return new[] { "Restaurar vida e colete", "Invencibilidade: " + (jogadorInvencivel ? "LIGADA" : "DESLIGADA"), "Recuperar habilidade especial", "Limpar sangue e sujeira" };
             case "policia": return new[] { "Limpar procurado", "Nivel 1", "Nivel 2", "Nivel 3", "Nivel 4", "Nivel 5" };
-            case "armas": return new[] { "Receber todas as armas disponiveis", "Completar municao", "Remover armas" };
+            case "armas": return new[] { "Receber todas as armas disponiveis", "Completar municao", "Remover armas", "Escolher arma" };
+            case "lista_armas": return armasNomes;
+            case "roupas": return nomesRoupa;
+            case "roupa_peca": return new[] { "Proximo modelo", "Proxima textura", "Restaurar peca anterior" };
             case "categorias": { var a = new string[categorias.Length + 1]; categorias.CopyTo(a, 0); a[a.Length - 1] = "Buscar por nome interno"; return a; }
-            case "modelos": { var a = new string[modelos.Length]; for (int i = 0; i < a.Length; i++) { string nome = Function.Call<string>(Hash.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL, (int)modelos[i]); a[i] = string.IsNullOrEmpty(nome) ? modelos[i].ToString() : nome; } return a; }
-            case "tunagem": return new[] { "Reparar e limpar", "Melhorar desempenho ao maximo", "Turbo ligado", "Turbo desligado", "Cor: preto", "Cor: branco", "Cor: vermelho", "Cor: azul", "Cor: dourado", "Invencibilidade do veiculo", "Personalizar pecas" };
+            case "modelos": return nomesModelos;
+            case "tunagem": return new[] { "Reparar e limpar", "Melhorar desempenho ao maximo", "Turbo ligado", "Turbo desligado", "Cor: preto", "Cor: branco", "Cor: vermelho", "Cor: azul", "Cor: dourado", "Invencibilidade do veiculo", "Personalizar pecas", "Desvirar veiculo", "Ligar motor" };
             case "pecas": return new[] { "Aerofolio", "Para-choque dianteiro", "Para-choque traseiro", "Saias", "Escapamento", "Gaiola", "Grade", "Capo", "Paralama esquerdo", "Paralama direito", "Teto", "Buzina", "Suspensao", "Rodas" };
             case "teletransporte": return new[] { "Marcador do mapa", "Aeroporto de Los Santos", "Praia de Vespucci", "Observatorio Galileo", "Pier de Del Perro", "Monte Chiliad", "Aerodromo de Sandy Shores" };
             case "mundo": return new[] { "Manha: 08:00", "Meio-dia: 12:00", "Noite: 22:00", "Ensolarado", "Limpo", "Nublado", "Chuva", "Tempestade" };
@@ -136,12 +146,12 @@ public class MikeMenu : Script
         }
     }
     private void AbrirPagina(string alvo) { pagina = alvo; indiceSelecionado = 0; }
-    private void Voltar() { if (pagina == "principal") aberto = false; else if (pagina == "modelos") AbrirPagina("categorias"); else if (pagina == "pecas") AbrirPagina("tunagem"); else AbrirPagina("principal"); }
+    private void Voltar() { if (pagina == "principal") aberto = false; else if (pagina == "modelos") AbrirPagina("categorias"); else if (pagina == "pecas") AbrirPagina("tunagem"); else if (pagina == "lista_armas") AbrirPagina("armas"); else if (pagina == "roupa_peca") AbrirPagina("roupas"); else AbrirPagina("principal"); }
     private void AoPressionarTecla(object remetente, KeyEventArgs e)
     {
         if (ocupado) return;
         int antes;
-        if (e.KeyCode == Keys.F9) { if (aberto) { aberto = false; return; } if (EstaPronto(out antes)) { aberto = true; AbrirPagina("principal"); } else ExibirMensagem("Menu disponivel apenas no modo historia, com um protagonista ativo."); return; }
+        if (e.KeyCode == Keys.Delete) { if (aberto) { aberto = false; return; } if (EstaPronto(out antes)) { aberto = true; AbrirPagina("principal"); } else ExibirMensagem("Menu disponivel apenas no modo historia, com um protagonista ativo."); return; }
         if (e.KeyCode == Keys.F10 || e.KeyCode == Keys.F11) { AlterarDinheiro(e.KeyCode == Keys.F11); return; }
         if (!aberto) return;
         if (!EstaPronto(out antes)) { aberto = false; LimparProtecoes(); return; }
@@ -167,17 +177,55 @@ public class MikeMenu : Script
     private void AtivarOpcao(int antes)
     {
         var personagem = Game.Player.Character;
-        if (pagina == "principal") { string[] paginas = { "dinheiro", "jogador", "policia", "armas", "categorias", "tunagem", "teletransporte", "mundo" }; AbrirPagina(paginas[indiceSelecionado]); return; }
+        if (pagina == "principal") { string[] paginas = { "dinheiro", "jogador", "policia", "armas", "roupas", "categorias", "tunagem", "teletransporte", "mundo" }; AbrirPagina(paginas[indiceSelecionado]); return; }
         if (pagina == "dinheiro") { if (indiceSelecionado < 2) { ocupado = false; AlterarDinheiro(indiceSelecionado == 1); ocupado = true; } else { int total; string quantia = indiceSelecionado == 2 ? "100000" : "1000000"; if (RegrasMikeMenu.TentarCalcular(quantia, Game.Player.Money, true, out total)) { Game.Player.Money = total; ExibirMensagem("Saldo atualizado. Salve o jogo."); } else ExibirMensagem("Limite de dinheiro atingido."); } return; }
-        if (pagina == "jogador") { if (indiceSelecionado == 0) { personagem.Health = personagem.MaxHealth; personagem.Armor = 100; } else if (indiceSelecionado == 1) { jogadorInvencivel = !jogadorInvencivel; if (jogadorInvencivel) { AplicarProtecaoJogador(); ExibirMensagem("Invencibilidade ligada."); } else { Function.Call(Hash.SET_PLAYER_INVINCIBLE, Game.Player.Handle, false); if (personagemProtegido != null && personagemProtegido.Exists()) personagemProtegido.IsInvincible = false; personagemProtegido = null; ExibirMensagem("Invencibilidade desligada."); } } else Function.Call(Hash.SPECIAL_ABILITY_FILL_METER, Game.Player.Handle, true); return; }
+        if (pagina == "jogador") { if (indiceSelecionado == 0) { personagem.Health = personagem.MaxHealth; personagem.Armor = 100; } else if (indiceSelecionado == 1) { jogadorInvencivel = !jogadorInvencivel; if (jogadorInvencivel) { AplicarProtecaoJogador(); ExibirMensagem("Invencibilidade ligada."); } else { Function.Call(Hash.SET_PLAYER_INVINCIBLE, Game.Player.Handle, false); if (personagemProtegido != null && personagemProtegido.Exists()) personagemProtegido.IsInvincible = false; personagemProtegido = null; ExibirMensagem("Invencibilidade desligada."); } } else if (indiceSelecionado == 2) Function.Call(Hash.SPECIAL_ABILITY_FILL_METER, Game.Player.Handle, true); else { Function.Call(Hash.CLEAR_PED_BLOOD_DAMAGE, personagem.Handle); Function.Call(Hash.CLEAR_PED_ENV_DIRT, personagem.Handle); ExibirMensagem("Personagem limpo."); } return; }
         if (pagina == "policia") { Game.Player.WantedLevel = indiceSelecionado; return; }
-        if (pagina == "armas") { if (indiceSelecionado == 2) Function.Call(Hash.REMOVE_ALL_PED_WEAPONS, personagem.Handle, true); else if (indiceSelecionado == 1) Function.Call(Hash.SET_PED_INFINITE_AMMO_CLIP, personagem.Handle, false); else { int recebidas = 0; var vistos = new System.Collections.Generic.HashSet<int>(); foreach (WeaponHash arma in Enum.GetValues(typeof(WeaponHash))) { int codigo = unchecked((int)arma); if (arma == WeaponHash.Unarmed || !vistos.Add(codigo) || !Function.Call<bool>(Hash.IS_WEAPON_VALID, codigo)) continue; Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, codigo, 999, false, false); if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, codigo, false)) recebidas++; } ExibirMensagem(recebidas + " armas aceitas pelo personagem."); } if (indiceSelecionado == 1) { foreach (WeaponHash w in Enum.GetValues(typeof(WeaponHash))) if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, (int)w, false)) Function.Call(Hash.SET_PED_AMMO, personagem.Handle, (int)w, 999); } return; }
-        if (pagina == "categorias") { if (indiceSelecionado == categorias.Length) { string nome = Game.GetUserInput(""); int depois; if (!string.IsNullOrWhiteSpace(nome) && EstaPronto(out depois) && antes == depois) CriarVeiculo(new Model(nome)); } else { categoria = indiceSelecionado; modelos = Vehicle.GetAllModelsOfClass((VehicleClass)categoria); AbrirPagina("modelos"); if (modelos.Length == 0) ExibirMensagem("Nenhum modelo disponivel nesta categoria."); } return; }
+        if (pagina == "armas") { if (indiceSelecionado == 3) { AbrirPagina("lista_armas"); return; } if (indiceSelecionado == 2) Function.Call(Hash.REMOVE_ALL_PED_WEAPONS, personagem.Handle, true); else if (indiceSelecionado == 0) { int recebidas = 0; var vistos = new System.Collections.Generic.HashSet<int>(); foreach (WeaponHash arma in Enum.GetValues(typeof(WeaponHash))) { int codigo = unchecked((int)arma); if (arma == WeaponHash.Unarmed || !vistos.Add(codigo) || !Function.Call<bool>(Hash.IS_WEAPON_VALID, codigo)) continue; Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, codigo, 999, false, false); if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, codigo, false)) recebidas++; } ExibirMensagem(recebidas + " armas aceitas pelo personagem."); } if (indiceSelecionado == 1) { foreach (WeaponHash w in Enum.GetValues(typeof(WeaponHash))) if (Function.Call<bool>(Hash.HAS_PED_GOT_WEAPON, personagem.Handle, (int)w, false)) Function.Call(Hash.SET_PED_AMMO, personagem.Handle, (int)w, 999); } return; }
+        if (pagina == "lista_armas") { int arma = Game.GenerateHash(armasCodigos[indiceSelecionado]); if (!Function.Call<bool>(Hash.IS_WEAPON_VALID, arma)) ExibirMensagem("Arma indisponivel nesta versao."); else { Function.Call(Hash.GIVE_WEAPON_TO_PED, personagem.Handle, arma, 250, false, true); ExibirMensagem("Arma solicitada."); } return; }
+        if (pagina == "roupas") { componenteRoupa = componentesRoupa[indiceSelecionado]; pedRoupa = personagem.Handle; roupaOriginal = Function.Call<int>(Hash.GET_PED_DRAWABLE_VARIATION, pedRoupa, componenteRoupa); texturaOriginal = Function.Call<int>(Hash.GET_PED_TEXTURE_VARIATION, pedRoupa, componenteRoupa); AbrirPagina("roupa_peca"); return; }
+        if (pagina == "roupa_peca") { AlterarRoupa(personagem); return; }
+        if (pagina == "categorias") { if (indiceSelecionado == categorias.Length) { string nome = Game.GetUserInput(""); int depois; if (!string.IsNullOrWhiteSpace(nome) && EstaPronto(out depois) && antes == depois) CriarVeiculo(new Model(nome)); } else { categoria = indiceSelecionado; modelos = Vehicle.GetAllModelsOfClass((VehicleClass)categoria); nomesModelos = new string[modelos.Length]; for (int i = 0; i < modelos.Length; i++) { string rotulo = Function.Call<string>(Hash.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL, (int)modelos[i]); string nome = string.IsNullOrEmpty(rotulo) ? null : Game.GetLocalizedString(rotulo); nomesModelos[i] = string.IsNullOrEmpty(nome) || nome == "NULL" ? (string.IsNullOrEmpty(rotulo) ? modelos[i].ToString() : rotulo) : nome; } AbrirPagina("modelos"); if (modelos.Length == 0) ExibirMensagem("Nenhum modelo disponivel nesta categoria."); } return; }
         if (pagina == "modelos") { CriarVeiculo(new Model((int)modelos[indiceSelecionado])); return; }
         if (pagina == "tunagem") { if (indiceSelecionado == 10) AbrirPagina("pecas"); else TunarVeiculo(personagem.CurrentVehicle); return; }
         if (pagina == "pecas") { Personalizar(personagem.CurrentVehicle); return; }
         if (pagina == "teletransporte") { Teletransportar(antes); return; }
         if (pagina == "mundo") { if (indiceSelecionado < 3) Function.Call(Hash.SET_CLOCK_TIME, indiceSelecionado == 0 ? 8 : indiceSelecionado == 1 ? 12 : 22, 0, 0); else { string[] weather = { "EXTRASUNNY", "CLEAR", "CLOUDS", "RAIN", "THUNDER" }; Function.Call(Hash.SET_WEATHER_TYPE_NOW_PERSIST, weather[indiceSelecionado - 3]); } }
+    }
+    private void AlterarRoupa(Ped personagem)
+    {
+        if (personagem == null || !personagem.Exists() || personagem.Handle != pedRoupa) { ExibirMensagem("Personagem mudou; selecione a peca novamente."); AbrirPagina("roupas"); return; }
+        int modelo = Function.Call<int>(Hash.GET_PED_DRAWABLE_VARIATION, pedRoupa, componenteRoupa);
+        int textura = Function.Call<int>(Hash.GET_PED_TEXTURE_VARIATION, pedRoupa, componenteRoupa);
+        if (indiceSelecionado == 0)
+        {
+            int quantidade = Function.Call<int>(Hash.GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS, pedRoupa, componenteRoupa);
+            bool encontrada = false;
+            for (int i = 0; i < quantidade; i++)
+            {
+                modelo = RegrasMikeMenu.ProximaVariacao(modelo, quantidade);
+                int texturas = Function.Call<int>(Hash.GET_NUMBER_OF_PED_TEXTURE_VARIATIONS, pedRoupa, componenteRoupa, modelo);
+                for (int t = 0; t < texturas; t++)
+                    if (Function.Call<bool>(Hash.IS_PED_COMPONENT_VARIATION_VALID, pedRoupa, componenteRoupa, modelo, t)) { textura = t; encontrada = true; break; }
+                if (encontrada) break;
+            }
+            if (!encontrada) { ExibirMensagem("Nenhum modelo valido para este personagem."); return; }
+        }
+        else if (indiceSelecionado == 1)
+        {
+            int quantidade = Function.Call<int>(Hash.GET_NUMBER_OF_PED_TEXTURE_VARIATIONS, pedRoupa, componenteRoupa, modelo);
+            bool encontrada = false;
+            for (int i = 0; i < quantidade; i++)
+            {
+                textura = RegrasMikeMenu.ProximaVariacao(textura, quantidade);
+                if (Function.Call<bool>(Hash.IS_PED_COMPONENT_VARIATION_VALID, pedRoupa, componenteRoupa, modelo, textura)) { encontrada = true; break; }
+            }
+            if (!encontrada) { ExibirMensagem("Nenhuma textura valida para este modelo."); return; }
+        }
+        else { modelo = roupaOriginal; textura = texturaOriginal; }
+        if (modelo < 0 || textura < 0 || !Function.Call<bool>(Hash.IS_PED_COMPONENT_VARIATION_VALID, pedRoupa, componenteRoupa, modelo, textura)) { ExibirMensagem("Variacao indisponivel para este personagem."); return; }
+        Function.Call(Hash.SET_PED_COMPONENT_VARIATION, pedRoupa, componenteRoupa, modelo, textura, 0);
+        ExibirMensagem("Modelo " + modelo + " / textura " + textura + ". Visualize no personagem.");
     }
     private void Teletransportar(int antes)
     {
@@ -279,6 +327,8 @@ public class MikeMenu : Script
         else if (indiceSelecionado == 1) { int[] mods = { 11, 12, 13, 15, 16 }; foreach (int modificacao in mods) { int quantidade = Function.Call<int>(Hash.GET_NUM_VEHICLE_MODS, h, modificacao); if (quantidade > 0) Function.Call(Hash.SET_VEHICLE_MOD, h, modificacao, quantidade - 1, false); } Function.Call(Hash.TOGGLE_VEHICLE_MOD, h, 18, true); ExibirMensagem("Melhorias disponiveis aplicadas."); }
         else if (indiceSelecionado == 2 || indiceSelecionado == 3) Function.Call(Hash.TOGGLE_VEHICLE_MOD, h, 18, indiceSelecionado == 2);
         else if (indiceSelecionado <= 8) { int[] cores = { 0, 111, 27, 64, 158 }; Function.Call(Hash.SET_VEHICLE_COLOURS, h, cores[indiceSelecionado - 4], cores[indiceSelecionado - 4]); }
+        else if (indiceSelecionado == 11) { Function.Call(Hash.SET_VEHICLE_ON_GROUND_PROPERLY, h, 5.0f); ExibirMensagem("Tentativa de posicionar o veiculo no solo."); }
+        else if (indiceSelecionado == 12) { Function.Call(Hash.SET_VEHICLE_ENGINE_ON, h, true, true, false); ExibirMensagem("Motor ligado."); }
         else { if (veiculoProtegido != null && veiculoProtegido.Exists()) { bool mesmo = veiculoProtegido.Handle == h; veiculoProtegido.IsInvincible = false; veiculoProtegido = null; if (mesmo) { ExibirMensagem("Invencibilidade do veiculo desligada."); return; } } veiculoProtegido = veiculo; veiculo.IsInvincible = true; ExibirMensagem("Invencibilidade do veiculo ligada."); }
     }
 }

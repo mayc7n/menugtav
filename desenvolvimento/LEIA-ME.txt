@@ -17,15 +17,17 @@ COMO INSTALAR
 2. Abra a pasta do seu GTA V: é aquela onde fica o arquivo GTA5.exe.
 3. Copie a pasta scripts que veio neste ZIP e cole na pasta do GTA.
    Se você já tiver uma pasta scripts, abra as duas pastas e copie o arquivo MikeMenu.3.dll para dentro da pasta scripts do jogo.
-4. Abra o jogo, entre no modo história e aperte F9. Pronto!
+4. Abra o jogo, entre no modo história e aperte Del. Pronto!
 
 COMO USAR
 
 Setas para cima e para baixo: navegar.
 Enter: escolher uma opção.
 Backspace: voltar.
-F9: abrir ou fechar o menu.
+Del: abrir ou fechar o menu.
 F10: definir o dinheiro. F11: adicionar dinheiro.
+
+Em Roupas, escolha uma peça e percorra modelos e texturas. A alteração aparece no personagem; use Restaurar peça anterior antes de sair daquela peça para desfazê-la. Voltar ou fechar o menu mantém a escolha atual. O menu ainda não exibe miniaturas. As novas funções precisam ser testadas dentro do jogo.
 
 NÃO ABRIU?
 

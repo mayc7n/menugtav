@@ -16,6 +16,9 @@ class TestesRegras {
   Verificar(RegrasMikeMenu.MoverSelecao(0, -1, 4) == 3, "volta ao fim");
   Verificar(RegrasMikeMenu.MoverSelecao(3, 1, 4) == 0, "volta ao inicio");
   Verificar(RegrasMikeMenu.MoverSelecao(0, 1, 0) == 0, "lista vazia");
+  Verificar(RegrasMikeMenu.ProximaVariacao(2, 3) == 0, "variacao volta ao inicio");
+  Verificar(RegrasMikeMenu.ProximaVariacao(0, 0) == -1, "variacao indisponivel");
+  Verificar(RegrasMikeMenu.ProximaVariacao(-1, 3) == 0, "variacao invalida reinicia");
   Verificar(RegrasMikeMenu.InicioJanela(0, 23, 9) == 0, "janela inicial");
   Verificar(RegrasMikeMenu.InicioJanela(10, 23, 9) == 2, "janela acompanha selecao");
   Verificar(RegrasMikeMenu.InicioJanela(22, 23, 9) == 14, "janela final");

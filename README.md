@@ -11,7 +11,7 @@
 
 1. [Baixar o Mike Menu](https://github.com/mayc7n/menugtav/raw/refs/heads/main/MikeMenu.zip) e extrair o ZIP.
 2. Com o jogo fechado, copiar a pasta **scripts** extraída e colar na pasta do GTA V, onde fica o `GTA5.exe`. Se já existir uma pasta `scripts`, copie apenas o arquivo `MikeMenu.3.dll` para dentro dela.
-3. Abrir o modo história e apertar **F9**. Pronto!
+3. Abrir o modo história e apertar **Del**. Pronto!
 
 **É a primeira vez que usa mods?** Antes dos passos acima, instale o [Script Hook V](https://www.dev-c.com/gtav/scripthookv/) e o [ScriptHookVDotNet](https://github.com/scripthookvdotnet/scripthookvdotnet/wiki/Getting-Started). Eles são necessários para o menu funcionar e têm suas próprias instruções de instalação. Faça uma cópia do seu save antes de começar.
 
@@ -19,9 +19,13 @@ O menu é para **GTA V Legacy no Windows, modo história**. A edição Enhanced 
 
 ## Como usar
 
-Aperte **F9** para abrir ou fechar. Navegue com as **setas**, escolha com **Enter** e volte com **Backspace**. Para dinheiro, use **F10** para definir o saldo e **F11** para adicionar uma quantia.
+Aperte **Del** para abrir ou fechar. Navegue com as **setas**, escolha com **Enter** e volte com **Backspace**. Para dinheiro, use **F10** para definir o saldo e **F11** para adicionar uma quantia.
 
 Você encontra opções para cuidar do personagem, ajustar o nível de procurado, receber armas, escolher e tunar veículos, mudar o clima e se teletransportar. A disponibilidade de veículos, armas e peças varia conforme o jogo.
+
+Em **Armas**, escolha uma arma individual ou reponha a munição. Em **Roupas**, escolha uma peça e percorra modelos e texturas: a mudança aparece diretamente no personagem. Para desfazer, use **Restaurar peça anterior** antes de sair daquela peça; voltar ou fechar o menu mantém a escolha atual. Em **Veículo atual**, há também opções para tentar desvirar o veículo e ligar o motor. Os nomes dos veículos usam a tradução disponível no jogo.
+
+O menu ainda não exibe miniaturas de veículos ou roupas. As novas funções precisam de teste dentro do GTA V; sua disponibilidade depende do personagem, veículo e versão do jogo.
 
 ## Precisa de ajuda?
 
@@ -33,6 +37,6 @@ O [guia de instalação](desenvolvimento/LEIA-ME.txt) também está dentro do ZI
 
 ## Sobre o projeto
 
-O código, os testes e as ferramentas ficam na pasta [desenvolvimento](desenvolvimento/); **você não precisa mexer nela para instalar**. A DLL foi compilada com a API v3 do ScriptHookVDotNet 3.7.0-nightly.201. A compilação renomeada e a correção mais recente do teletransporte ainda precisam de teste em jogo.
+O código, os testes e as ferramentas ficam na pasta [desenvolvimento](desenvolvimento/); **você não precisa mexer nela para instalar**. A DLL foi compilada com a API v3 do ScriptHookVDotNet 3.7.0-nightly.201. A versão atual ainda precisa de teste em jogo.
 
 Projeto independente, sem vínculo com a Rockstar Games. GTA e Grand Theft Auto são marcas de seus respectivos titulares. As dependências são projetos de terceiros e têm suas próprias licenças. Este repositório ainda não declara uma licença para reutilização do código.

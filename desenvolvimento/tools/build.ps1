@@ -22,6 +22,7 @@ if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes.' }
 if ($LASTEXITCODE -ne 0) { throw 'Os testes falharam.' }
 & $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o menu.' }
+Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $arquivoTemporario = Join-Path $pastaCompilacao 'MikeMenu.zip'
 if (Test-Path -LiteralPath $arquivoTemporario) { Remove-Item -LiteralPath $arquivoTemporario -Force }
