@@ -31,6 +31,12 @@ Em **Jogador → Habilidades**, alterne superpulo, corrida e natação rápidas;
 
 Com o menu fechado, use **Ctrl+F5** para recuperar vida e colete, **Ctrl+F6** para reparar e limpar o veículo atual e **Ctrl+F7** para alternar Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções e imagens precisam de teste dentro do GTA V; sua disponibilidade depende do personagem, veículo e versão do jogo.
 
+Em **Veículos → Escolher veículo**, pesquise pelo nome exibido e pressione **F5** em um modelo para adicioná-lo ou removê-lo dos favoritos. Em **Teletransporte → Locais salvos**, há três espaços para gravar posições. Em **Armas → Kits de armas**, há três espaços por protagonista para armas e munição; acessórios não são salvos. O menu também inclui velocímetro, impulso, freio, rádio portátil, densidade de trânsito e pedestres e a opção de permanecer na moto.
+
+Os atalhos de vida, reparo e polícia podem ser alterados em `scripts/MikeMenu/atalhos.ini`, criado ao iniciar o menu. Edite com o jogo fechado e reinicie; use combinações de Ctrl, Shift ou Alt com F1–F9 ou F12. F10, F11 e Del permanecem reservados. Se o arquivo for inválido, o menu usa os atalhos padrão sem apagá-lo.
+
+O menu também aceita imagens específicas em `scripts/MikeMenuAssets`: `veiculo_HASH.png` e `roupa_PROTAGONISTA_COMPONENTE_MODELO_TEXTURA.png`, com hashes hexadecimais de oito dígitos. A roupa é identificada separadamente para Michael, Franklin e Trevor. Essas imagens específicas não são incluídas automaticamente; na ausência delas, são usadas as imagens internas disponíveis ou ilustrações genéricas.
+
 ## Precisa de ajuda?
 
 - **O menu não abriu?** Confira se os dois pré-requisitos estão instalados, se o arquivo `MikeMenu.3.dll` ficou na pasta `scripts` do jogo e se você está no modo história. Depois, reinicie o jogo.

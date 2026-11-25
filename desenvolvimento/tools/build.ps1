@@ -9,6 +9,15 @@ $codigoFonte = Join-Path $raizProjeto 'desenvolvimento\src\MikeMenu.3.cs'
 $previaFonte = Join-Path $raizProjeto 'desenvolvimento\src\PreviaMikeMenu.cs'
 $favoritosFonte = Join-Path $raizProjeto 'desenvolvimento\src\FavoritosMikeMenu.cs'
 $companheirosFonte = Join-Path $raizProjeto 'desenvolvimento\src\CompanheirosMikeMenu.cs'
+$extrasFonte = Join-Path $raizProjeto 'desenvolvimento\src\ExtrasMikeMenu.cs'
+$atalhosFonte = Join-Path $raizProjeto 'desenvolvimento\src\AtalhosMikeMenu.cs'
+$mapaFonte = Join-Path $raizProjeto 'desenvolvimento\src\MapaPreviaMikeMenu.cs'
+$mundoExtraFonte = Join-Path $raizProjeto 'desenvolvimento\src\MundoExtraMikeMenu.cs'
+$kitFonte = Join-Path $raizProjeto 'desenvolvimento\src\KitArmasMikeMenu.cs'
+$testesMundo = Join-Path $raizProjeto 'desenvolvimento\tests\TestesMundoExtra.cs'
+$testesKit = Join-Path $raizProjeto 'desenvolvimento\tests\TestesKitArmas.cs'
+$testesMapa = Join-Path $raizProjeto 'desenvolvimento\tests\TestesMapaPrevia.cs'
+$testesAtalhos = Join-Path $raizProjeto 'desenvolvimento\tests\TestesAtalhos.cs'
 $testes = Join-Path $raizProjeto 'desenvolvimento\tests\TestesRegras.cs'
 $testesFavoritos = Join-Path $raizProjeto 'desenvolvimento\tests\TestesFavoritos.cs'
 $referencia = (Resolve-Path -LiteralPath $ScriptHookVDotNet3).Path
@@ -29,7 +38,27 @@ $executavelFavoritos = Join-Path $pastaCompilacao 'TestesFavoritos.exe'
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de favoritos.' }
 & $executavelFavoritos
 if ($LASTEXITCODE -ne 0) { throw 'Os testes de favoritos falharam.' }
-& $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte $previaFonte $favoritosFonte $companheirosFonte
+$executavelAtalhos = Join-Path $pastaCompilacao 'TestesAtalhos.exe'
+& $compilador /nologo /reference:System.Windows.Forms.dll "/out:$executavelAtalhos" $atalhosFonte $testesAtalhos
+if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de atalhos.' }
+& $executavelAtalhos
+if ($LASTEXITCODE -ne 0) { throw 'Os testes de atalhos falharam.' }
+$executavelMapa = Join-Path $pastaCompilacao 'TestesMapaPrevia.exe'
+& $compilador /nologo "/out:$executavelMapa" $mapaFonte $testesMapa
+if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes do mapa de imagens.' }
+& $executavelMapa
+if ($LASTEXITCODE -ne 0) { throw 'Os testes do mapa de imagens falharam.' }
+$executavelMundo = Join-Path $pastaCompilacao 'TestesMundoExtra.exe'
+& $compilador /nologo /define:TEST "/out:$executavelMundo" $mundoExtraFonte $testesMundo
+if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de mundo.' }
+& $executavelMundo
+if ($LASTEXITCODE -ne 0) { throw 'Os testes de mundo falharam.' }
+$executavelKit = Join-Path $pastaCompilacao 'TestesKitArmas.exe'
+& $compilador /nologo /define:TEST "/out:$executavelKit" $favoritosFonte $kitFonte $testesKit
+if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de kits.' }
+& $executavelKit
+if ($LASTEXITCODE -ne 0) { throw 'Os testes de kits falharam.' }
+& $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte $previaFonte $favoritosFonte $companheirosFonte $extrasFonte $atalhosFonte $mapaFonte $mundoExtraFonte $kitFonte
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o menu.' }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem

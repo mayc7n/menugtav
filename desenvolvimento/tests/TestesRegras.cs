@@ -13,6 +13,9 @@ class TestesRegras {
   Verificar(!RegrasMikeMenu.PodeEditar(false, false, true, true), "troca");
   Verificar(!RegrasMikeMenu.PodeEditar(false, false, false, false), "personagem");
   Verificar(RegrasMikeMenu.PodeEditar(false, false, false, true), "modo historia");
+  Verificar(RegrasMikeMenu.CorrespondeBusca("Zentórno", "TOrNo"), "busca ignora maiusculas e acentos");
+  Verificar(!RegrasMikeMenu.CorrespondeBusca("Adder", "t20"), "busca rejeita outro nome");
+  Verificar(!RegrasMikeMenu.CorrespondeBusca("Adder", " "), "busca vazia rejeitada");
   Verificar(PreviaMikeMenu.NomeSeguro("veiculo") && PreviaMikeMenu.NomeSeguro("roupa"), "imagens locais validas");
   Verificar(!PreviaMikeMenu.NomeSeguro("../fora") && !PreviaMikeMenu.NomeSeguro(null), "impede caminho invalido");
   Verificar(RegrasMikeMenu.PaginaPrincipal(2) == "veiculos" && RegrasMikeMenu.PaginaPrincipal(8) == "dinheiro", "navegacao principal organizada");

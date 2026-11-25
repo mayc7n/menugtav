@@ -37,6 +37,8 @@ Pedestres também oferece até três guarda-costas e um motorista. Para chamar o
 
 Com o menu fechado: Ctrl+F5 restaura vida e colete; Ctrl+F6 repara e limpa o veículo; Ctrl+F7 alterna Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções precisam ser testadas dentro do jogo.
 
+Em Veículos > Escolher veículo há busca por nome e favoritos; pressione F5 sobre um modelo para favoritar ou remover. Teletransporte > Locais salvos guarda três posições. Armas > Kits de armas salva armas e munição separadamente para cada protagonista, sem acessórios. Em Mundo, ajuste trânsito, pedestres e rádio portátil; em veículos há velocímetro, impulso e freio. Os atalhos de ações podem ser configurados em scripts/MikeMenu/atalhos.ini com o jogo fechado; reinicie depois de editar.
+
 NÃO ABRIU?
 
 Confira se o jogo é GTA V Legacy, se os dois pré-requisitos estão instalados e se o arquivo MikeMenu.3.dll está na pasta scripts do jogo. Depois, feche e abra o jogo de novo. Para detalhes, veja o arquivo ScriptHookVDotNet.log na pasta do GTA.
