@@ -29,6 +29,8 @@ Em **Polícia**, ative ou desative **Nunca procurado**; escolher um nível de pr
 
 Em **Jogador → Habilidades**, alterne superpulo, corrida e natação rápidas; há também animações e acesso ao paraquedas. Em **Armas**, há munição infinita para a arma selecionada, opção sem recarga, acessórios compatíveis e tiros explosivos ou incendiários. Em **Veículos**, há controles de portas, vidros e motor, e três espaços para salvar e recriar carros. Em **Roupas → Trajes salvos**, salve e aplique trajes do mesmo protagonista. Cada gravação substitui o conteúdo anterior do espaço. Veículos salvos preservam modelo, cores padrão, rodas, peças disponíveis, turbo e placa; cores personalizadas, neon e alguns detalhes podem não ser recuperados. Em **Mundo**, alterne relógio parado e blecaute. No menu principal, **Desligar efeitos ativos** desativa os efeitos temporários do menu.
 
+Em **Roupas**, selecione **Guardar roupa atual após morte** para registrar a aparência que o protagonista já veste. Ajustar uma peça pelo menu ou aplicar um traje salvo também atualiza esse registro. Após detectar uma morte, o menu tenta reaplicá-lo quando o protagonista estiver estável; Michael, Franklin e Trevor têm registros separados. Isso não substitui os trajes salvos manualmente. Em **Jogador → Habilidades**, também há socos explosivos, fôlego infinito e câmera lenta.
+
 Com o menu fechado, use **Ctrl+F5** para recuperar vida e colete, **Ctrl+F6** para reparar e limpar o veículo atual e **Ctrl+F7** para alternar Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções e imagens precisam de teste dentro do GTA V; sua disponibilidade depende do personagem, veículo e versão do jogo.
 
 Em **Veículos → Escolher veículo**, pesquise pelo nome exibido e pressione **F5** em um modelo para adicioná-lo ou removê-lo dos favoritos. Em **Teletransporte → Locais salvos**, há três espaços para gravar posições. Em **Armas → Kits de armas**, há três espaços por protagonista para armas e munição; acessórios não são salvos. O menu também inclui velocímetro, impulso, freio, rádio portátil, densidade de trânsito e pedestres e a opção de permanecer na moto.
@@ -36,6 +38,8 @@ Em **Veículos → Escolher veículo**, pesquise pelo nome exibido e pressione *
 Os atalhos de vida, reparo e polícia podem ser alterados em `scripts/MikeMenu/atalhos.ini`, criado ao iniciar o menu. Edite com o jogo fechado e reinicie; use combinações de Ctrl, Shift ou Alt com F1–F9 ou F12. F10, F11 e Del permanecem reservados. Se o arquivo for inválido, o menu usa os atalhos padrão sem apagá-lo.
 
 O menu também aceita imagens específicas em `scripts/MikeMenuAssets`: `veiculo_HASH.png` e `roupa_PROTAGONISTA_COMPONENTE_MODELO_TEXTURA.png`, com hashes hexadecimais de oito dígitos. A roupa é identificada separadamente para Michael, Franklin e Trevor. Essas imagens específicas não são incluídas automaticamente; na ausência delas, são usadas as imagens internas disponíveis ou ilustrações genéricas.
+
+O pacote inclui uma ilustração do Zentorno. Para ampliar as imagens reais de veículos na instalação local, desenvolvedores podem usar [o importador de prévias](desenvolvimento/tools/importar-previas.py), que consulta um catálogo de terceiros e não substitui imagens já existentes. Esse catálogo não acompanha o ZIP e sua disponibilidade pode mudar.
 
 ## Precisa de ajuda?
 

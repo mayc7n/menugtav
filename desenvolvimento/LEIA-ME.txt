@@ -29,6 +29,8 @@ F10: definir o dinheiro. F11: adicionar dinheiro.
 
 Em Roupas, escolha uma peça e percorra modelos e texturas. A alteração aparece no personagem; use Restaurar peça anterior antes de sair daquela peça para desfazê-la. Voltar ou fechar o menu mantém a escolha atual. O painel usa imagens do jogo para algumas armas e veículos e ilustrações genéricas identificadas para roupas e outros veículos.
 
+Para guardar a roupa que já está vestindo, use Roupas > Guardar roupa atual após morte. O menu também registra ajustes e trajes aplicados e tenta restaurá-los após a morte, separadamente para Michael, Franklin e Trevor. Essa função precisa ser testada no jogo.
+
 Jogador > Habilidades oferece superpulo e corrida e natação rápidas. Armas oferece munição infinita para a arma atual, sem recarga e acessórios compatíveis. Veículos oferece controles de portas, vidros e motor e três espaços para salvar carros. Roupas > Trajes salvos oferece três espaços para o mesmo protagonista. Salvar substitui o conteúdo anterior do espaço. Os veículos salvos preservam modelo, cores padrão, rodas, peças, turbo e placa; não são cópias completas de todos os detalhes. O menu principal permite desligar efeitos ativos.
 
 Polícia: alterne Nunca procurado para limpar as estrelas continuamente. Escolher um nível de procurado desliga essa opção. Em Pedestres, atraia até dez civis próximos por alguns segundos.

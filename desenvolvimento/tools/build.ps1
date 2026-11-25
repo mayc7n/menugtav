@@ -14,6 +14,9 @@ $atalhosFonte = Join-Path $raizProjeto 'desenvolvimento\src\AtalhosMikeMenu.cs'
 $mapaFonte = Join-Path $raizProjeto 'desenvolvimento\src\MapaPreviaMikeMenu.cs'
 $mundoExtraFonte = Join-Path $raizProjeto 'desenvolvimento\src\MundoExtraMikeMenu.cs'
 $kitFonte = Join-Path $raizProjeto 'desenvolvimento\src\KitArmasMikeMenu.cs'
+$efeitosFonte = Join-Path $raizProjeto 'desenvolvimento\src\EfeitosExtrasMikeMenu.cs'
+$roupaAutomaticaFonte = Join-Path $raizProjeto 'desenvolvimento\src\RoupaAutomaticaMikeMenu.cs'
+$testesRoupaAutomatica = Join-Path $raizProjeto 'desenvolvimento\tests\TestesRoupaAutomatica.cs'
 $testesMundo = Join-Path $raizProjeto 'desenvolvimento\tests\TestesMundoExtra.cs'
 $testesKit = Join-Path $raizProjeto 'desenvolvimento\tests\TestesKitArmas.cs'
 $testesMapa = Join-Path $raizProjeto 'desenvolvimento\tests\TestesMapaPrevia.cs'
@@ -58,7 +61,12 @@ $executavelKit = Join-Path $pastaCompilacao 'TestesKitArmas.exe'
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de kits.' }
 & $executavelKit
 if ($LASTEXITCODE -ne 0) { throw 'Os testes de kits falharam.' }
-& $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte $previaFonte $favoritosFonte $companheirosFonte $extrasFonte $atalhosFonte $mapaFonte $mundoExtraFonte $kitFonte
+$executavelRoupa = Join-Path $pastaCompilacao 'TestesRoupaAutomatica.exe'
+& $compilador /nologo /define:TEST "/out:$executavelRoupa" $roupaAutomaticaFonte $testesRoupaAutomatica
+if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar os testes de roupa automática.' }
+& $executavelRoupa
+if ($LASTEXITCODE -ne 0) { throw 'Os testes de roupa automática falharam.' }
+& $compilador /nologo /target:library "/out:$binario" "/reference:$referencia" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll $codigoFonte $previaFonte $favoritosFonte $companheirosFonte $extrasFonte $atalhosFonte $mapaFonte $mundoExtraFonte $kitFonte $efeitosFonte $roupaAutomaticaFonte
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o menu.' }
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
