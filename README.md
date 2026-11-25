@@ -25,7 +25,9 @@ Você encontra opções para cuidar do personagem, ajustar o nível de procurado
 
 Em **Armas**, escolha uma arma individual ou reponha a munição. Em **Roupas**, escolha uma peça e percorra modelos e texturas: a mudança aparece diretamente no personagem. Para desfazer, use **Restaurar peça anterior** antes de sair daquela peça; voltar ou fechar o menu mantém a escolha atual. Em **Veículo atual**, há também opções para tentar desvirar o veículo e ligar o motor. Os nomes dos veículos usam a tradução disponível no jogo.
 
-O menu ainda não exibe miniaturas de veículos ou roupas. As novas funções precisam de teste dentro do GTA V; sua disponibilidade depende do personagem, veículo e versão do jogo.
+Em **Polícia**, ative ou desative **Nunca procurado**; escolher um nível de procurado desliga essa opção. Em **Pedestres**, é possível atrair até dez civis próximos por alguns segundos. O menu mostra miniaturas para oito armas e para Adder, Cheetah, Banshee, Zentorno e BMX quando as imagens do jogo estiverem disponíveis; as outras opções mostram uma indicação de imagem indisponível. Roupas aparecem no próprio personagem.
+
+Com o menu fechado, use **Ctrl+F5** para recuperar vida e colete, **Ctrl+F6** para reparar e limpar o veículo atual e **Ctrl+F7** para alternar Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções e imagens precisam de teste dentro do GTA V; sua disponibilidade depende do personagem, veículo e versão do jogo.
 
 ## Precisa de ajuda?
 

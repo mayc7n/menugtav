@@ -27,7 +27,11 @@ Backspace: voltar.
 Del: abrir ou fechar o menu.
 F10: definir o dinheiro. F11: adicionar dinheiro.
 
-Em Roupas, escolha uma peça e percorra modelos e texturas. A alteração aparece no personagem; use Restaurar peça anterior antes de sair daquela peça para desfazê-la. Voltar ou fechar o menu mantém a escolha atual. O menu ainda não exibe miniaturas. As novas funções precisam ser testadas dentro do jogo.
+Em Roupas, escolha uma peça e percorra modelos e texturas. A alteração aparece no personagem; use Restaurar peça anterior antes de sair daquela peça para desfazê-la. Voltar ou fechar o menu mantém a escolha atual. Miniaturas aparecem para algumas armas e veículos quando os recursos do jogo estão disponíveis.
+
+Polícia: alterne Nunca procurado para limpar as estrelas continuamente. Escolher um nível de procurado desliga essa opção. Em Pedestres, atraia até dez civis próximos por alguns segundos.
+
+Com o menu fechado: Ctrl+F5 restaura vida e colete; Ctrl+F6 repara e limpa o veículo; Ctrl+F7 alterna Nunca procurado. Outros mods podem usar os mesmos atalhos. As novas funções precisam ser testadas dentro do jogo.
 
 NÃO ABRIU?
 

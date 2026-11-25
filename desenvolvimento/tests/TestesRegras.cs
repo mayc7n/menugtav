@@ -16,6 +16,9 @@ class TestesRegras {
   Verificar(RegrasMikeMenu.MoverSelecao(0, -1, 4) == 3, "volta ao fim");
   Verificar(RegrasMikeMenu.MoverSelecao(3, 1, 4) == 0, "volta ao inicio");
   Verificar(RegrasMikeMenu.MoverSelecao(0, 1, 0) == 0, "lista vazia");
+  int[] modelosUnicos = RegrasMikeMenu.RemoverDuplicados(new int[] { 9, 3, 9, -1, 3 });
+  Verificar(modelosUnicos.Length == 3 && modelosUnicos[0] == 9 && modelosUnicos[1] == 3 && modelosUnicos[2] == -1, "modelos unicos preservam ordem");
+  Verificar(RegrasMikeMenu.RemoverDuplicados(new int[0]).Length == 0, "modelos vazios");
   Verificar(RegrasMikeMenu.ProximaVariacao(2, 3) == 0, "variacao volta ao inicio");
   Verificar(RegrasMikeMenu.ProximaVariacao(0, 0) == -1, "variacao indisponivel");
   Verificar(RegrasMikeMenu.ProximaVariacao(-1, 3) == 0, "variacao invalida reinicia");
